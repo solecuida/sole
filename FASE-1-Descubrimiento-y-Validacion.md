@@ -7,6 +7,8 @@
 **Clasificación:** Interno — Fundación del proyecto
 **Naturaleza del proyecto:** Startup HealthTech de impacto social, nacida para honrar la memoria de una madre fallecida por Alzheimer.
 
+> **Nota sobre el nombre del proyecto.** *Sole* fue la tía del fundador — la cuidadora real de su madre mientras estuvo enferma. El proyecto lleva su nombre no porque represente a la persona cuidada, sino porque representa el estándar que este producto quiere hacer posible para cualquier familia: que cada persona que necesita cuidado tenga a alguien como Sole, y que cada cuidador tenga las herramientas que a ella le faltaron. Por eso **el usuario y cliente de este producto es el cuidador — nunca el paciente** (ver Segmento B, §1.1): esto ya estaba correctamente reflejado en el diseño de este documento; el ajuste que corrige esta versión es de nomenclatura en las historias de usuario de Fase 3, donde el nombre de la paciente de ejemplo se separa del nombre del proyecto para no confundir a quien lea ambos.
+
 ---
 
 > **Nota metodológica.** Este documento sigue el marco Lean Startup (Ash Maurya) adaptado a las particularidades de HealthTech: en salud digital, el *usuario*, el *cliente que paga* y el *beneficiario clínico* casi nunca son la misma persona, y el error más caro de un fundador primerizo es diseñar como si lo fueran. Todo lo aquí planteado son **hipótesis a validar**, no verdades. La Fase 1 termina cuando estas hipótesis hayan sido confirmadas o refutadas con entrevistas reales (mínimo sugerido: 25 cuidadores familiares, 8 profesionales, 3 asociaciones de familiares).
