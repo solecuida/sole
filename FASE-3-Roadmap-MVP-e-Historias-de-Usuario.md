@@ -280,6 +280,23 @@ No existe capacidad de las Fases 1–2 sin destino asignado. **El MVP resultante
 
 La estimación del Sprint 3 deja deliberadamente ~15 % de su capacidad a: triage de bugs de los sprints 1–2 encontrados en staging, prueba de restauración de backup cronometrada, revisión final de textos con el DPO (claims, consentimiento, límites del sistema), ensayo del runbook de brechas, y el **ensayo general del piloto**: onboarding real de la primera familia (del equipo extendido/AFA) en producción con acompañamiento presencial.
 
+**DoD de hardening — checklist de los "10 puntos" (auditoría de app vendible, adaptada de la metodología de tododeia.com) antes de dar por cerrada la semana 6.** Cada punto se audita contra el código real en staging, no contra la intención de Fase 2 — si algo de lo decidido en Fase 2 no llegó a implementarse, este es el gate que lo atrapa:
+
+| # | Punto | Qué se audita | Decisión de Fase 2 que debería sostenerlo |
+|---|---|---|---|
+| 1 | RLS / aislamiento multi-tenant | Ninguna query cruza `circle_id`; RLS activo en Postgres como red final, no solo en el middleware | §2.2.2–2.2.3 |
+| 2 | Cero secretos en el repo/historial | `git log` + escaneo de secretos (gitleaks o equivalente) limpio; todo en Secrets Manager con rotación | §3.3 |
+| 3 | APIs con auth, permisos y validación de entrada | Guards de rol en cada endpoint (no solo en los "sensibles"); validación de payload en el borde | §2.2.3, §1.1.4 |
+| 4 | Hosting/despliegue con entornos separados | Staging y producción con credenciales y datos distintos; variables de entorno fuera de código | §3.1.3 |
+| 5 | Seguridad de sesión y login | Expiración e invalidación de sesión al cambiar rol/salir del círculo; vulnerabilidades OWASP Top 10 cerradas | §2.1, §2.2 |
+| 6 | Rate limiting en endpoints caros | Cuotas de IA (transcripción/informe) y throttling de auth activos y probados con carga sintética, no solo documentados | §1.1.4 (nuevo, añadido en este hardening) |
+| 7 | Caché donde corresponde | Redis sirviendo el estado vivo de alertas y presencia sin servir datos de un círculo ajeno | §1.3.5 |
+| 8 | Escalabilidad | Auto-scaling del Core probado con el game day mensual de §3.2.4; carril crítico nunca escala a cero | §1.1.2-B, §3.2 |
+| 9 | Monitoreo de errores, rendimiento y gasto, con alertas | Health checks externos + PagerDuty ya operativos (§3.2.5); se añade aquí alerta de **gasto por círculo** sobre las cuotas del punto 6, no solo alertas de caída | §3.2.5 |
+| — | Multi-tenancy a nivel de plan (contexto de la metodología, no aplica aún) | El MVP no tiene niveles de plan (Starter/Pro/Enterprise); se deja anotado como precondición de V2 si se monetiza por tiers, no como deuda de este piloto | Fase 4/5 |
+
+Un fallo en cualquiera de los puntos 1, 2, 5 o 6 bloquea el piloto (no se onboardea a la primera familia real); un fallo en 3, 4, 7, 8 o 9 se corrige en la propia semana 6 con la holgura reservada.
+
 ### Riesgos del sprint y mitigación
 
 | Riesgo | Mitigación |
