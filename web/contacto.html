@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conversemos — Sole</title>
+<meta name="description" content="Si estás cuidando a alguien de tu familia en Chile, o representas una organización o eres profesional de salud, escríbeme. Treinta minutos, confidencial, sin venta de por medio.">
+<link rel="canonical" href="https://solecuida.com/contacto.html">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_CL">
+<meta property="og:site_name" content="Sole">
+<meta property="og:url" content="https://solecuida.com/contacto.html">
+<meta property="og:title" content="Conversemos — Sole">
+<meta property="og:description" content="Si estás cuidando a alguien de tu familia en Chile, escríbeme. Treinta minutos, confidencial, sin venta de por medio.">
+<meta property="og:image" content="https://solecuida.com/assets/portada-social.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Sole — en reconocimiento a quien cuida">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%239c5b34'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' fill='%23faf6ef' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Courier+Prime:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..500&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/estilo.css">
+</head>
+<body>
+
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+
+<header class="masthead">
+  <div class="masthead__interior">
+    <a class="marca" href="index.html">
+      Sole
+      <span class="marca__pie">En reconocimiento a quien cuida</span>
+    </a>
+    <nav class="navegacion" aria-label="Principal">
+      <a href="index.html">La carta</a>
+      <a href="organizaciones.html">Para organizaciones</a>
+      <a href="privacidad.html">Privacidad y límites</a>
+      <a href="contacto.html" aria-current="page">Conversemos</a>
+    </nav>
+  </div>
+</header>
+
+<main id="contenido">
+
+  <div class="pagina">
+    <div class="encabezado lectura">
+      <p class="epigrafe entra">Treinta o cuarenta minutos</p>
+      <h1 class="entra">Conversemos.</h1>
+      <p class="bajada entra">No hay nada que comprar ni nada que probar. Es una conversación sobre cómo es tu día, y para mí vale muchísimo.</p>
+      <p class="fecha-lugar entra">Videollamada o presencial &middot; confidencial &middot; cuando te acomode</p>
+    </div>
+  </div>
+
+  <div class="pagina">
+    <article class="carta lectura">
+
+      <p>Escríbeme y te respondo en un par de días. Coordinamos cuando puedas —muchas de estas conversaciones pasan de noche, cuando la casa se calma, y está perfecto. Puedes tener la cámara apagada, puedes parar cuando quieras y no se graba nada sin que me lo autorices.</p>
+
+      <aside class="nota">
+        <p><b>Qué pasa después.</b> Te respondo, coordinamos, conversamos. Eso es todo. No hay siguiente paso escondido ni lista a la que quedes suscrito.</p>
+      </aside>
+
+      <form class="formulario" id="formulario-contacto" novalidate>
+
+        <div class="campo">
+          <label for="nombre">¿Cómo te llamas?</label>
+          <input type="text" id="nombre" name="nombre" autocomplete="name" required maxlength="120">
+          <span class="campo__ayuda">Basta tu nombre de pila si prefieres.</span>
+        </div>
+
+        <div class="campo">
+          <label for="contacto">¿Cómo te contacto?</label>
+          <input type="text" id="contacto" name="contacto" autocomplete="email" required maxlength="160">
+          <span class="campo__ayuda">Un correo o un número de WhatsApp. El que uses de verdad.</span>
+        </div>
+
+        <div class="campo">
+          <label for="relacion">¿Cuál es tu relación con el cuidado?</label>
+          <select id="relacion" name="relacion" required>
+            <option value="">Elige una opción</option>
+            <option value="cuidador-conviviente">Cuido a alguien y vivo con esa persona</option>
+            <option value="cuidador-distancia">Ayudo a cuidar desde otra ciudad o país</option>
+            <option value="circulo">Soy parte de la familia, pero no soy quien más carga</option>
+            <option value="cuidadora-contratada">Trabajo cuidando a alguien</option>
+            <option value="profesional">Soy profesional de salud o del área social</option>
+            <option value="organizacion">Represento a una organización, centro o municipio</option>
+            <option value="cuide-antes">Cuidé antes; ya no</option>
+            <option value="otro">Otra</option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label for="comuna">¿De qué comuna?</label>
+          <input type="text" id="comuna" name="comuna" maxlength="120">
+          <span class="campo__ayuda">Opcional. Me sirve para entender diferencias entre territorios.</span>
+        </div>
+
+        <div class="campo">
+          <label for="mensaje">¿Quieres contarme algo antes?</label>
+          <textarea id="mensaje" name="mensaje" maxlength="2000"></textarea>
+          <span class="campo__ayuda">Opcional, y no hace falta que sea ordenado. No me escribas datos médicos: no los necesito.</span>
+        </div>
+
+        <div class="campo trampa" aria-hidden="true">
+          <label for="sitio-web">No completes este campo</label>
+          <input type="text" id="sitio-web" name="sitio-web" tabindex="-1" autocomplete="off">
+        </div>
+
+        <div class="campo campo--consentimiento">
+          <input type="checkbox" id="consentimiento" name="consentimiento" required>
+          <label for="consentimiento">Autorizo que se guarden estos datos con el único fin de que me contacten para coordinar una conversación. Sé que puedo pedir que los borren cuando quiera, y leí <a href="privacidad.html">privacidad y límites</a>.</label>
+        </div>
+
+        <div id="mensaje-formulario" role="status" aria-live="polite"></div>
+
+        <div class="acciones">
+          <button class="boton" type="submit" id="boton-enviar">Enviar</button>
+          <span class="etiqueta">Respondo en 2 a 3 días</span>
+        </div>
+
+      </form>
+
+      <span class="asterismo" aria-hidden="true">* * *</span>
+
+      <h2>O escríbeme directo</h2>
+
+      <p>Si prefieres no dejar tus datos en un formulario —lo entiendo perfectamente— escríbeme y llegamos al mismo lugar:</p>
+
+      <ul class="recursos">
+        <li>
+          <b><a href="mailto:hola@solecuida.com">hola@solecuida.com</a></b>
+          <span>Cuéntame quién eres, sin formalidades, y coordinamos.</span>
+        </li>
+      </ul>
+
+      <div class="aviso">
+        <p><b>Esto no es un servicio de ayuda</b></p>
+        <p>Si necesitas apoyo hoy, en <a href="index.html#contenido">la carta</a> hay tres vías públicas que sí existen ahora mismo: el GES 85, la Red Local de Apoyos y Cuidados de tu municipio y los centros comunitarios de apoyo a personas con demencia. Ante una urgencia, SAMU <strong>131</strong>.</p>
+      </div>
+
+    </article>
+  </div>
+
+</main>
+
+<footer class="pie">
+  <div class="pie__rejilla">
+    <div>
+      <h4>Sole</h4>
+      <p>Investigación sobre lo que viven las personas que cuidan en casa a un familiar en Chile. Escuchar antes de construir.</p>
+    </div>
+    <div>
+      <h4>Páginas</h4>
+      <ul>
+        <li><a href="index.html">La carta</a></li>
+        <li><a href="organizaciones.html">Para organizaciones</a></li>
+        <li><a href="privacidad.html">Privacidad y límites</a></li>
+        <li><a href="contacto.html">Conversemos</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Contacto</h4>
+      <ul>
+        <li><a href="mailto:hola@solecuida.com">hola@solecuida.com</a></li>
+      </ul>
+    </div>
+  </div>
+  <p class="pie__legal">
+    Sole no es una empresa constituida, no ofrece servicios de salud y no vende ningún producto.
+    Si estás frente a una urgencia médica, llama al <strong>131</strong> (SAMU).
+  </p>
+</footer>
+
+<script src="assets/config.js"></script>
+<script src="assets/formulario.js"></script>
+
+<!-- Analitica sin cookies (Vercel Web Analytics): cuenta visitas, no personas.
+     No requiere aviso de cookies porque no escribe ninguna. Ver privacidad.html -->
+<script defer src="/_vercel/insights/script.js"></script>
+
+</body>
+</html>
