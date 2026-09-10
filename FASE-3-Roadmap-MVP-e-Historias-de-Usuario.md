@@ -183,7 +183,7 @@ No existe capacidad de las Fases 1–2 sin destino asignado. **El MVP resultante
  │ onboarding, esqueleto    │ │ medicación, turnos de     │ │ informe 1 página y consola     │
  │ Flutter accesible        │ │ guardia, estado honesto   │ │ del profesional; hardening     │
  └──────────────────────────┘ └───────────────────────────┘ └────────────────────────────────┘
-  Demo: "la familia García    Demo: "Sole sale de la zona    Demo: "una quincena de cuidado
+  Demo: "la familia García    Demo: "la Nonó sale de la zona    Demo: "una quincena de cuidado
   existe, con roles, y nadie  segura y la alerta escala      real simulada termina en un
   ve lo que no debe"          hasta que alguien responde"    informe que una neuróloga lee"
         │                             │                              │
@@ -224,7 +224,7 @@ No existe capacidad de las Fases 1–2 sin destino asignado. **El MVP resultante
 
 ## 2.3 SPRINT 2 — Módulo Core de Alertas, Geolocalización y Recordatorios de Medicamentos
 
-**Sprint Goal:** *"Si Sole cruza la geovalla o nadie confirma su anticoagulante, alguien de la familia se entera aunque tenga el móvil en silencio, aunque el Core esté caído y aunque el push no llegue — y si el sistema no puede vigilar, lo dice."*
+**Sprint Goal:** *"Si la Nonó cruza la geovalla o nadie confirma su anticoagulante, alguien de la familia se entera aunque tenga el móvil en silencio, aunque el Core esté caído y aunque el push no llegue — y si el sistema no puede vigilar, lo dice."*
 
 **Entregable demostrable (Sprint Review):** simulacro en vivo con dispositivos reales: salida de geovalla → push con acuse en app → sin acuse → SMS al segundo contacto → sin acuse → llamada de voz sintetizada; después, el mismo simulacro **con el Core apagado** (game day). Confirmación de medicación crítica omitida escalando al cuidador de guardia. Pantalla de estado del sistema mostrando heartbeat y antigüedad de datos.
 
@@ -280,6 +280,23 @@ No existe capacidad de las Fases 1–2 sin destino asignado. **El MVP resultante
 
 La estimación del Sprint 3 deja deliberadamente ~15 % de su capacidad a: triage de bugs de los sprints 1–2 encontrados en staging, prueba de restauración de backup cronometrada, revisión final de textos con el DPO (claims, consentimiento, límites del sistema), ensayo del runbook de brechas, y el **ensayo general del piloto**: onboarding real de la primera familia (del equipo extendido/AFA) en producción con acompañamiento presencial.
 
+**DoD de hardening — checklist de los "10 puntos" (auditoría de app vendible, adaptada de la metodología de tododeia.com) antes de dar por cerrada la semana 6.** Cada punto se audita contra el código real en staging, no contra la intención de Fase 2 — si algo de lo decidido en Fase 2 no llegó a implementarse, este es el gate que lo atrapa:
+
+| # | Punto | Qué se audita | Decisión de Fase 2 que debería sostenerlo |
+|---|---|---|---|
+| 1 | RLS / aislamiento multi-tenant | Ninguna query cruza `circle_id`; RLS activo en Postgres como red final, no solo en el middleware | §2.2.2–2.2.3 |
+| 2 | Cero secretos en el repo/historial | `git log` + escaneo de secretos (gitleaks o equivalente) limpio; todo en Secrets Manager con rotación | §3.3 |
+| 3 | APIs con auth, permisos y validación de entrada | Guards de rol en cada endpoint (no solo en los "sensibles"); validación de payload en el borde | §2.2.3, §1.1.4 |
+| 4 | Hosting/despliegue con entornos separados | Staging y producción con credenciales y datos distintos; variables de entorno fuera de código | §3.1.3 |
+| 5 | Seguridad de sesión y login | Expiración e invalidación de sesión al cambiar rol/salir del círculo; vulnerabilidades OWASP Top 10 cerradas | §2.1, §2.2 |
+| 6 | Rate limiting en endpoints caros | Cuotas de IA (transcripción/informe) y throttling de auth activos y probados con carga sintética, no solo documentados | §1.1.4 (nuevo, añadido en este hardening) |
+| 7 | Caché donde corresponde | Redis sirviendo el estado vivo de alertas y presencia sin servir datos de un círculo ajeno | §1.3.5 |
+| 8 | Escalabilidad | Auto-scaling del Core probado con el game day mensual de §3.2.4; carril crítico nunca escala a cero | §1.1.2-B, §3.2 |
+| 9 | Monitoreo de errores, rendimiento y gasto, con alertas | Health checks externos + PagerDuty ya operativos (§3.2.5); se añade aquí alerta de **gasto por círculo** sobre las cuotas del punto 6, no solo alertas de caída | §3.2.5 |
+| — | Multi-tenancy a nivel de plan (contexto de la metodología, no aplica aún) | El MVP no tiene niveles de plan (Starter/Pro/Enterprise); se deja anotado como precondición de V2 si se monetiza por tiers, no como deuda de este piloto | Fase 4/5 |
+
+Un fallo en cualquiera de los puntos 1, 2, 5 o 6 bloquea el piloto (no se onboardea a la primera familia real); un fallo en 3, 4, 7, 8 o 9 se corrige en la propia semana 6 con la holgura reservada.
+
 ### Riesgos del sprint y mitigación
 
 | Riesgo | Mitigación |
@@ -315,27 +332,27 @@ Las tres historias siguientes son las *historias faro* del MVP: una por rol, ele
 ### Criterios de aceptación
 
 **Escenario 1 — Consentimiento otorgado en fase leve con preferencias anticipadas**
-- **Dado que** Sole tiene un diagnóstico en fase leve y capacidad de consentir, y su hija Ana (admin) ha propuesto activar la zona segura,
-- **Cuando** Sole revisa en la app de Ana (acompañada, en una pantalla de lenguaje llano con texto grande y opción de escucha por voz) la explicación de qué se vigila (solo cruces de zona), qué no (su posición continua) y quién será avisado,
-- **Entonces** el sistema registra un consentimiento con titular=Sole, alcance=geolocalización-por-geovalla, base=consentimiento explícito del titular, la versión exacta del texto mostrado y la fecha; **y** le ofrece registrar preferencias anticipadas (p. ej., "si empeoro, quiero que la localización solo se use cuando salga sola de noche"), que quedan selladas en el historial inmutable; **y** la geovalla no puede activarse antes de que este consentimiento exista.
+- **Dado que** la Nonó tiene un diagnóstico en fase leve y capacidad de consentir, y su hija Ana (admin) ha propuesto activar la zona segura,
+- **Cuando** la Nonó revisa en la app de Ana (acompañada, en una pantalla de lenguaje llano con texto grande y opción de escucha por voz) la explicación de qué se vigila (solo cruces de zona), qué no (su posición continua) y quién será avisado,
+- **Entonces** el sistema registra un consentimiento con titular=Nonó (Dinora García), alcance=geolocalización-por-geovalla, base=consentimiento explícito del titular, la versión exacta del texto mostrado y la fecha; **y** le ofrece registrar preferencias anticipadas (p. ej., "si empeoro, quiero que la localización solo se use cuando salga sola de noche"), que quedan selladas en el historial inmutable; **y** la geovalla no puede activarse antes de que este consentimiento exista.
 
 **Escenario 2 — Paseo rutinario: el sistema calla**
-- **Dado que** la zona segura incluye el barrio de Sole y su horario de paseo habitual, y su teléfono lleva el agente pasivo activo,
-- **Cuando** Sole pasea 40 minutos dentro de la zona, o el GPS deriva 20 metros fuera del borde durante 15 segundos y regresa,
+- **Dado que** la zona segura incluye el barrio de la Nonó y su horario de paseo habitual, y su teléfono lleva el agente pasivo activo,
+- **Cuando** la Nonó pasea 40 minutos dentro de la zona, o el GPS deriva 20 metros fuera del borde durante 15 segundos y regresa,
 - **Entonces** no se genera ninguna alerta ni notificación de ningún nivel, no se almacena ninguna posición fina, y el único rastro es el heartbeat técnico del dispositivo; **y** el consumo de batería atribuible al agente en 24 h no supera el presupuesto validado en el spike.
 
 **Escenario 3 — Salida real de zona: alerta única con posición solo mientras dure**
-- **Dado que** Sole cruza el perímetro y permanece fuera más de la histéresis configurada (N metros sostenidos M segundos),
+- **Dado que** la Nonó cruza el perímetro y permanece fuera más de la histéresis configurada (N metros sostenidos M segundos),
 - **Cuando** el agente (o la validación secundaria del servidor) detecta el cruce,
-- **Entonces** el carril crítico genera **una** alerta de nivel 1 (no un goteo de alertas por oscilación) dirigida al cuidador de guardia en ≤ 5 s (p99) desde el evento; **y** solo a partir de ese momento el dispositivo emite posición fina cada 30–60 s, visible para el círculo en el mapa de la alerta activa; **y** al cerrarse la alerta ("Sole está con Ana") la emisión de posición cesa, y la posición fina se purga a las 72 h quedando solo el evento agregado ("salida de zona el 12/07, resuelta en 40 min por Ana").
+- **Entonces** el carril crítico genera **una** alerta de nivel 1 (no un goteo de alertas por oscilación) dirigida al cuidador de guardia en ≤ 5 s (p99) desde el evento; **y** solo a partir de ese momento el dispositivo emite posición fina cada 30–60 s, visible para el círculo en el mapa de la alerta activa; **y** al cerrarse la alerta ("la Nonó está con Ana") la emisión de posición cesa, y la posición fina se purga a las 72 h quedando solo el evento agregado ("salida de zona el 12/07, resuelta en 40 min por Ana").
 
-**Escenario 4 — Revocación: la voluntad de Sole manda**
-- **Dado que** Sole (o, en fase posterior, quien acredite base de actuación como guardador de hecho, con el cambio registrado) revoca el consentimiento de geolocalización,
+**Escenario 4 — Revocación: la voluntad de la Nonó manda**
+- **Dado que** la Nonó (o, en fase posterior, quien acredite base de actuación como guardador de hecho, con el cambio registrado) revoca el consentimiento de geolocalización,
 - **Cuando** la revocación se registra,
-- **Entonces** el evento `ConsentimientoRevocado` se propaga y la geovalla queda desactivada extremo a extremo (agente incluido) en menos de 5 minutos, la desactivación es visible en el estado del sistema ("zona segura: desactivada por decisión de Sole"), y ningún miembro del círculo puede reactivarla sin un nuevo consentimiento registrado.
+- **Entonces** el evento `ConsentimientoRevocado` se propaga y la geovalla queda desactivada extremo a extremo (agente incluido) en menos de 5 minutos, la desactivación es visible en el estado del sistema ("zona segura: desactivada por decisión de la Nonó"), y ningún miembro del círculo puede reactivarla sin un nuevo consentimiento registrado.
 
 **Escenario 5 (negativo) — Sin señal no hay teatro de vigilancia**
-- **Dado que** el teléfono de Sole se queda sin batería o el SO mata el agente,
+- **Dado que** el teléfono de la Nonó se queda sin batería o el SO mata el agente,
 - **Cuando** el heartbeat deja de llegar durante el umbral configurado,
 - **Entonces** el sistema **no** muestra la última posición como si fuera actual ni el estado "todo en orden"; muestra "dispositivo sin conexión desde hace 3 h — última batería conocida 12 %" y genera una alerta de nivel 2 al cuidador de guardia; **y** en ningún caso se genera una alerta de nivel 1 por mera pérdida de señal (anti-fatiga, R4).
 
@@ -361,7 +378,7 @@ Las tres historias siguientes son las *historias faro* del MVP: una por rol, ele
 **Escenario 2 — Escalado por personas y por canales hasta el acuse**
 - **Dado que** Luis no acusa recibo,
 - **Cuando** transcurre el plazo configurado (por defecto: 2 min para push),
-- **Entonces** el sistema reintenta con Luis por SMS y, en paralelo según configuración, notifica al segundo contacto de la cadena; **cuando** tampoco hay acuse en el siguiente plazo, **entonces** escala a llamada de voz sintetizada a Luis y al segundo contacto ("Esto es una alerta del círculo de cuidado de Sole: ha salido de su zona segura. Pulse 1 para confirmar que se ocupa"); **cuando** se agota la cadena sin acuse, **entonces** alerta al círculo completo y, si la familia lo configuró, llama al teléfono de respaldo definido — y el estado "nadie ha respondido aún" es visible con honestidad, nunca silencioso.
+- **Entonces** el sistema reintenta con Luis por SMS y, en paralelo según configuración, notifica al segundo contacto de la cadena; **cuando** tampoco hay acuse en el siguiente plazo, **entonces** escala a llamada de voz sintetizada a Luis y al segundo contacto ("Esto es una alerta del círculo de cuidado de la Nonó: ha salido de su zona segura. Pulse 1 para confirmar que se ocupa"); **cuando** se agota la cadena sin acuse, **entonces** alerta al círculo completo y, si la familia lo configuró, llama al teléfono de respaldo definido — y el estado "nadie ha respondido aún" es visible con honestidad, nunca silencioso.
 
 **Escenario 3 — El acuse detiene el ruido y deja constancia**
 - **Dado que** la alerta está escalando,
@@ -389,7 +406,7 @@ Las tres historias siguientes son las *historias faro* del MVP: una por rol, ele
 
 ## HU-003 — PROFESIONAL · "Dejar de decidir a ciegas entre consulta y consulta"
 
-> **Como** neuróloga que ve a Sole 15 minutos cada 6 meses,
+> **Como** neuróloga que ve a la Nonó 15 minutos cada 6 meses,
 > **quiero** recibir, mediante una invitación temporal y auditada de la familia, un informe longitudinal de una página con la evolución observada en casa (adherencia, sueño, conducta, incidentes) y sus tendencias,
 > **para** ajustar el manejo con la evolución real del día a día en lugar de la memoria estresada de una cuidadora en consulta — sin acceder jamás a la intimidad familiar que no me corresponde.
 
@@ -423,7 +440,7 @@ Las tres historias siguientes son las *historias faro* del MVP: una por rol, ele
 - **Cuando** manipula la URL o llama a la API intentando acceder a relevos, tareas, otro paciente u otro círculo,
 - **Entonces** cada intento recibe denegación en las tres capas (guard por endpoint, scoping por `circle_id`, RLS) y queda registrado; estos casos forman parte de la suite negativa automatizada que bloquea el despliegue si falla.
 
-**Criterios no funcionales vinculantes:** la consola web cumple los mismos estándares de cifrado y auditoría que la app (es PHI); el informe se genera desde los identificadores pseudonimizados y la re-identificación (nombre de Sole) ocurre solo en la capa de presentación para el acceso autorizado; el diseño de la página lo valida al menos un médico real del grupo de Fase 1 antes de congelar la plantilla ("¿lo leerías en 2 minutos? ¿te fiarías?").
+**Criterios no funcionales vinculantes:** la consola web cumple los mismos estándares de cifrado y auditoría que la app (es PHI); el informe se genera desde los identificadores pseudonimizados y la re-identificación (nombre de la Nonó) ocurre solo en la capa de presentación para el acceso autorizado; el diseño de la página lo valida al menos un médico real del grupo de Fase 1 antes de congelar la plantilla ("¿lo leerías en 2 minutos? ¿te fiarías?").
 
 ---
 
@@ -438,7 +455,7 @@ Las tres historias siguientes son las *historias faro* del MVP: una por rol, ele
 7. **La honestidad del sistema es una feature con historias propias** (M13, escenarios negativos de HU-001/002): nunca un dato viejo presentado como actual, nunca silencio confundible con normalidad.
 8. **La holgura es estructural, no vergonzante.** ~12 % de capacidad sin comprometer, y una lista escrita de qué cae primero (tendencias in-app) y qué jamás (el camino de alerta).
 9. **El piloto es el árbitro.** Las métricas de activación y respuesta del Lean Canvas deciden el backlog de V2; este documento deja de mandar el día que la primera familia real entra en producción.
-10. **Las tres historias faro presiden las dudas.** Ante cualquier disyuntiva de implementación, gana la interpretación que mejor sirva a Sole paseando con dignidad, a Ana durmiendo cuando no está de guardia y a la Dra. Ruiz leyendo la verdad en una página.
+10. **Las tres historias faro presiden las dudas.** Ante cualquier disyuntiva de implementación, gana la interpretación que mejor sirva a la Nonó paseando con dignidad, a Ana durmiendo cuando no está de guardia y a la Dra. Ruiz leyendo la verdad en una página.
 
 ---
 
@@ -452,4 +469,4 @@ Las tres historias siguientes son las *historias faro* del MVP: una por rol, ele
 | 4 | **Congelar el catálogo v1 de chips de registro y la plantilla del informe** con el asesor clínico y un médico del grupo de Fase 1 | Ambos artefactos versionados como anexos antes de la semana 4 |
 | 5 | **Diseñar el protocolo del piloto** (8 semanas, 5–10 familias, consentimientos, soporte humano asignado, métricas de éxito/parada) | Protocolo aprobado por DPO y AFA aliada antes del fin del Sprint 3 |
 
-*Documento vivo. Los sprints están escritos con la humildad de quien sabe que el primer contacto con una familia real corregirá este papel — y con la firmeza de quien sabe qué tres cosas no se negocian: la dignidad de Sole, el descanso de Ana y la verdad de una alarma que suena cuando debe.*
+*Documento vivo. Los sprints están escritos con la humildad de quien sabe que el primer contacto con una familia real corregirá este papel — y con la firmeza de quien sabe qué tres cosas no se negocian: la dignidad de la Nonó, el descanso de Ana y la verdad de una alarma que suena cuando debe.*
