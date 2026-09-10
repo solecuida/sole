@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sole — círculo de cuidado</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #faf8f5;
+    --fg: #2b2521;
+    --muted: #6b6055;
+    --accent: #a8623f;
+    --card: #ffffff;
+    --border: #e8e1d8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1815;
+      --fg: #f2ede6;
+      --muted: #b9ada0;
+      --accent: #d98a63;
+      --card: #262019;
+      --border: #382f27;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+  }
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 4rem 1.25rem 5rem;
+  }
+  .eyebrow {
+    color: var(--accent);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    margin-bottom: 0.75rem;
+  }
+  h1 {
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    margin: 0 0 0.5rem;
+  }
+  .tagline {
+    font-size: 1.15rem;
+    color: var(--muted);
+    margin: 0 0 2.5rem;
+  }
+  p { margin: 0 0 1.1rem; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem 1.75rem;
+    margin: 2rem 0;
+  }
+  .card h2 {
+    font-size: 1.05rem;
+    margin: 0 0 0.6rem;
+  }
+  a { color: var(--accent); }
+  footer {
+    margin-top: 3rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="eyebrow">En construcción</div>
+    <h1>Sole</h1>
+    <p class="tagline">El círculo de cuidado que tu familia necesita y tu madre merece.</p>
+
+    <p>Sole nace en memoria de una cuidadora real: la tía que acompañó a nuestra madre durante su enfermedad. Este proyecto existe para que más cuidadores familiares tengan las herramientas que a ella le faltaron — no para la persona cuidada, sino para quien la cuida.</p>
+
+    <div class="card">
+      <h2>¿Qué estamos haciendo hoy?</h2>
+      <p>Estamos en fase de investigación: conversando con cuidadores familiares y organizaciones de apoyo en Chile antes de construir nada. No hay producto ni cobro — si algo se construye, será porque estas conversaciones lo validaron.</p>
+    </div>
+
+    <div class="card">
+      <h2>¿Eres cuidador/a o representas una organización de apoyo?</h2>
+      <p>Nos encantaría escuchar tu experiencia. Escríbenos a <a href="mailto:hola@example.com">hola@example.com</a> — dinos quién eres y con gusto coordinamos una conversación breve, confidencial y sin compromiso.</p>
+    </div>
+
+    <footer>&copy; 2026 Sole. Proyecto en fase de validación.</footer>
+  </div>
+</body>
+</html>
