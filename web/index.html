@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#faf8f5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1c1815" media="(prefers-color-scheme: dark)">
 <title>Sole — círculo de cuidado</title>
 <style>
   :root {
@@ -11,6 +13,7 @@
     --fg: #2b2521;
     --muted: #6b6055;
     --accent: #a8623f;
+    --accent-hover: #8a4c2f;
     --card: #ffffff;
     --border: #e8e1d8;
   }
@@ -20,6 +23,7 @@
       --fg: #f2ede6;
       --muted: #b9ada0;
       --accent: #d98a63;
+      --accent-hover: #eda882;
       --card: #262019;
       --border: #382f27;
     }
@@ -31,11 +35,32 @@
     color: var(--fg);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     line-height: 1.6;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .skip-link {
+    position: absolute;
+    top: 0;
+    left: -9999px;
+    z-index: 10;
+    background: var(--card);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: 0 0 10px 0;
+    padding: 0.75rem 1rem;
+    text-decoration: none;
+  }
+  .skip-link:focus { left: 0; }
+  :where(a, button, [tabindex]:not([tabindex="-1"])):focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 3px;
   }
   .wrap {
     max-width: 640px;
     margin: 0 auto;
-    padding: 4rem 1.25rem 5rem;
+    padding-block: 4rem 5rem;
+    padding-inline: max(1.25rem, env(safe-area-inset-left)) max(1.25rem, env(safe-area-inset-right));
   }
   .eyebrow {
     color: var(--accent);
@@ -48,11 +73,13 @@
   h1 {
     font-size: clamp(1.8rem, 5vw, 2.5rem);
     margin: 0 0 0.5rem;
+    text-wrap: balance;
   }
   .tagline {
     font-size: 1.15rem;
     color: var(--muted);
     margin: 0 0 2.5rem;
+    text-wrap: pretty;
   }
   p { margin: 0 0 1.1rem; }
   .card {
@@ -65,8 +92,16 @@
   .card h2 {
     font-size: 1.05rem;
     margin: 0 0 0.6rem;
+    text-wrap: balance;
   }
-  a { color: var(--accent); }
+  a {
+    color: var(--accent);
+    text-underline-offset: 2px;
+  }
+  a:hover {
+    color: var(--accent-hover);
+    text-decoration-thickness: 2px;
+  }
   footer {
     margin-top: 3rem;
     font-size: 0.85rem;
@@ -75,12 +110,13 @@
 </style>
 </head>
 <body>
-  <div class="wrap">
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+  <main class="wrap" id="contenido" tabindex="-1">
     <div class="eyebrow">En construcción</div>
-    <h1>Sole</h1>
+    <h1><span translate="no">Sole</span></h1>
     <p class="tagline">El círculo de cuidado que tu familia necesita y tu madre merece.</p>
 
-    <p>Sole nace en memoria de una cuidadora real: la tía que acompañó a nuestra madre durante su enfermedad. Este proyecto existe para que más cuidadores familiares tengan las herramientas que a ella le faltaron — no para la persona cuidada, sino para quien la cuida.</p>
+    <p><span translate="no">Sole</span> nace en memoria de una cuidadora real: la tía que acompañó a nuestra madre durante su enfermedad. Este proyecto existe para que más cuidadores familiares tengan las herramientas que a ella le faltaron — no para la persona cuidada, sino para quien la cuida.</p>
 
     <div class="card">
       <h2>¿Qué estamos haciendo hoy?</h2>
@@ -89,10 +125,15 @@
 
     <div class="card">
       <h2>¿Eres cuidador/a o representas una organización de apoyo?</h2>
-      <p>Nos encantaría escuchar tu experiencia. Escríbenos a <a href="mailto:hola@example.com">hola@example.com</a> — dinos quién eres y con gusto coordinamos una conversación breve, confidencial y sin compromiso.</p>
+      <!-- TODO: hola@example.com es un dominio placeholder reservado por IANA — el correo rebota.
+           Reemplazar por la dirección real antes de difundir la landing. -->
+      <p>Nos encantaría escuchar tu experiencia. Escríbenos a <a href="mailto:hola@example.com" translate="no">hola@example.com</a> — dinos quién eres y con gusto coordinamos una conversación breve, confidencial y sin compromiso.</p>
     </div>
 
-    <footer>&copy; 2026 Sole. Proyecto en fase de validación.</footer>
-  </div>
+    <footer>&copy; <span id="anio">2026</span> <span translate="no">Sole</span>. Proyecto en fase de validación.</footer>
+  </main>
+  <script>
+    document.getElementById('anio').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
