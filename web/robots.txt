@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://solecuida.com/sitemap.xml
+Sitemap: https://www.solecuida.com/sitemap.xml
