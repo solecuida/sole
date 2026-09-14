@@ -256,9 +256,26 @@ tocan los registros DNS ni se pierde correo.**
 
 ---
 
-## 10. Pendientes abiertos
+## 10. Pendientes
 
-### 10.1 El nombre del remitente no viaja — ABIERTO
+Las dos tareas con fecha tienen **recordatorio automático programado** (agentes en la nube,
+una sola ejecución, 09:00 hora de Santiago). Se gestionan en
+https://claude.ai/code/routines :
+
+| Fecha | Tarea | Routine |
+|---|---|---|
+| 21-09-2026 | Eliminar el selector DKIM viejo `zmail` y su TXT (§10.2) | `trig_01KWV1EvY6MsZQKgVaU3fq3W` |
+| 27-09-2026 | Revisar informes DMARC y subir a `p=quarantine` (§10.3) | `trig_01NgRZHuWyNSuTBijYuZkiod` |
+
+### 10.1 El nombre del remitente no viaja — CERRADO: se convive con ello
+
+> **Decisión de José (14-09-2026): no se persigue más.** Se asume que el remitente se lea
+> como `hola@solecuida.com` a secas. Razón: `hola@` es sobre todo un buzón que *recibe y
+> responde* —quien escribe ya sabe a quién escribió— y las cartas en frío a instituciones
+> salen de `jose@` firmadas con nombre y apellido, que para abrir puertas funciona mejor
+> que un buzón genérico. Si algún día molesta, abajo están las salidas.
+
+El detalle técnico, por si se retoma:
 
 La cabecera sale como `From: hola@solecuida.com`, sin `Sole` delante, así que quien recibe
 ve la dirección pelada en vez de la marca. Comprobado en cuatro envíos reales.
