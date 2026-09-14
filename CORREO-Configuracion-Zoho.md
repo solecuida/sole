@@ -6,7 +6,7 @@
 > los tres controles en Gmail:
 >
 > ```
-> dkim=pass   header.i=@solecuida.com  header.s=zmail
+> dkim=pass   header.i=@solecuida.com  header.s=zmail2   (RSA 2048)
 > spf=pass    smtp.mailfrom=hola@solecuida.com
 > dmarc=pass  header.from=solecuida.com  (p=NONE)
 > ```
@@ -218,17 +218,17 @@ Reglas prácticas, coherentes con las del `KIT-Validacion-Entrevistas-Chile.md`:
 
 - [x] `nslookup -type=MX solecuida.com 8.8.8.8` → los tres `mx*.zoho.com` (10/20/50)
 - [x] `nslookup -type=TXT solecuida.com 8.8.8.8` → SPF presente y **único**
-- [x] `nslookup -type=TXT zmail._domainkey.solecuida.com 8.8.8.8` → clave DKIM presente
+- [x] `nslookup -type=TXT zmail2._domainkey.solecuida.com 8.8.8.8` → clave DKIM de 2048
+      presente (410 caracteres, prefijo `p=MIIBIjAN…`)
 - [x] `nslookup -type=TXT _dmarc.solecuida.com 8.8.8.8` → política presente
-- [x] Zoho marca el dominio **Verificado** (10-09-26) y el DKIM `zmail` **Verificado**
+- [x] Zoho marca el dominio **Verificado** (10-09-26) y `zmail2` como **predeterminado**
 - [x] Correo desde Gmail externo a `hola@solecuida.com` → **llega** a la bandeja de José
 - [x] Respuesta enviada **desde `hola@solecuida.com`** → sale con ese remitente
 - [x] Cabeceras del mensaje real recibido en Gmail:
-      **`spf=pass` · `dkim=pass` (s=zmail) · `dmarc=pass`**
-- [ ] **El `From:` sale sin nombre para mostrar** — la cabecera real dice
-      `From: hola@solecuida.com` en vez de `From: Sole <hola@solecuida.com>`, pese a que
-      el campo *Nombre para mostrar* del grupo contiene `Sole`. Pendiente de repetir la
-      prueba y volver a leer cabeceras. Ver §10.
+      **`spf=pass` · `dkim=pass` (s=zmail2) · `dmarc=pass`**
+- [ ] **El `From:` sale sin nombre para mostrar** — la cabecera dice
+      `From: hola@solecuida.com` en vez de `From: Sole <hola@solecuida.com>`. Persiste tras
+      cuatro envíos y tras guardar el ajuste. Ver §10.1.
 - [ ] Prueba independiente en `mail-tester.com` (opcional)
 
 ### Cómo leer las cabeceras sin herramientas
@@ -258,35 +258,59 @@ tocan los registros DNS ni se pierde correo.**
 
 ## 10. Pendientes abiertos
 
-### 10.1 El nombre del remitente no viaja
+### 10.1 El nombre del remitente no viaja — ABIERTO
 
-La cabecera real sale como `From: hola@solecuida.com`, sin `Sole` delante, aunque el campo
-*Nombre para mostrar* del grupo en *Enviar correo como* sí contiene `Sole`. Por eso quien
-recibe ve solo la dirección. Siguiente paso: repetir el envío y volver a leer cabeceras; si
-persiste, revisar el nombre del grupo en *Admin Console → Grupos → General*.
+La cabecera sale como `From: hola@solecuida.com`, sin `Sole` delante, así que quien recibe
+ve la dirección pelada en vez de la marca. Comprobado en cuatro envíos reales.
 
-### 10.2 DKIM de 2048 bits — migración en curso
+Descartado ya:
 
-La clave original `zmail` es de **1024 bits** (deducible del largo del TXT: 234 caracteres;
-una de 2048 ronda los 400). Funciona, pero el estándar recomienda 2048 y algunos
-proveedores empiezan a desconfiar de 1024.
+- El campo *Nombre para mostrar* del grupo en *Enviar correo como* **sí contiene** `Sole`
+  (leído directamente del valor del input, no de la pantalla).
+- El grupo tiene *Nombre* = `Sole` en *Admin Console → Grupos → General*.
+- No es propagación: persiste tras guardar y tras varios envíos separados en el tiempo.
 
-**Método seguro, en paralelo — nunca reemplazar la clave activa in situ.** Si se regenera
-el selector que está firmando, Zoho firma con la clave nueva al instante mientras el DNS
-aún publica la vieja, y *todos* los envíos fallan DKIM hasta que se propague el cambio.
+Hay reportes en la comunidad de Zoho del mismo comportamiento **específico de direcciones
+de grupo** (en algunos casos el nombre sale recortado, en otros ausente). Apunta a una
+peculiaridad del producto, no a un error de esta configuración.
 
-Estado: selector **`zmail2` creado con 2048 bits**, marcado *No verificado*. `zmail` sigue
-con la estrella y sigue firmando, así que nada se ha roto.
+Caminos posibles, de menor a mayor coste:
 
-Pasos que faltan:
+1. **Probar a fijar `hola@` como remitente por defecto** en *Enviar correo como*. Barato.
+2. **Ticket a soporte de Zoho** adjuntando el *Mostrar original* de un envío. Es justo lo
+   que piden en los hilos de la comunidad. Gratis, conserva el grupo.
+3. **Convertir `hola@` de grupo a alias de `jose@`.** Los alias **sí** arrastran el nombre
+   para mostrar de forma fiable (el alias `dmarc@` lo hace). El precio es perder la
+   propiedad que motivó elegir grupo (§1): sumar una segunda persona dejaría de ser
+   inmediato. **Solo vale la pena si el nombre importa más que ese futuro.**
+4. **Convivir con ello.** `hola@solecuida.com` se explica solo.
 
-1. En *Admin Console → Dominios → solecuida.com → Configuración de correo → DKIM →
-   `zmail2`*, copiar el valor TXT con el botón de copiar (**no transcribirlo a mano**).
-2. En Vercel, nuevo registro TXT con nombre `zmail2._domainkey` y ese valor.
-3. Volver a Zoho y pulsar **Verificar** en `zmail2`.
-4. Cuando esté verificado, marcarlo como selector activo (la estrella).
-5. Dejar `zmail` publicado **una semana más** — los correos ya enviados y en tránsito se
-   validan contra la clave con la que se firmaron. Recién después, eliminarlo.
+### 10.2 DKIM de 2048 bits — COMPLETADO (14-09-2026)
+
+La clave original `zmail` era de **1024 bits** (deducible del largo del TXT: 234
+caracteres; una de 2048 ronda los 410). El estándar recomienda 2048 y algunos proveedores
+empiezan a desconfiar de las cortas.
+
+**Se hizo con el método en paralelo — nunca reemplazar la clave activa in situ.** Si se
+regenera el selector que está firmando, Zoho firma con la clave nueva al instante mientras
+el DNS aún publica la vieja, y *todos* los envíos fallan DKIM hasta que propague.
+
+Lo que se hizo:
+
+1. Selector **`zmail2` creado con 2048 bits** (`Agregar nuevo selector DKIM` permite elegir
+   longitud de clave). `zmail` siguió firmando mientras tanto.
+2. TXT `zmail2._domainkey` publicado en Vercel y **Verificado** en Zoho.
+3. `zmail2` marcado como **Registro predeterminado**.
+4. Confirmado en cabeceras reales: `dkim=pass ... header.s=zmail2`.
+
+**Pendiente único: eliminar el selector `zmail` y su TXT a partir del 21-09-2026.** Se deja
+solapado una semana porque los correos ya enviados se validan contra la clave con la que se
+firmaron; borrarla antes rompe la verificación de lo que aún esté en tránsito o archivado.
+
+> **Trampa observada:** al copiar el valor del selector nuevo es fácil llevarse el del
+> viejo, porque están uno encima del otro en la misma tabla. Se distinguen a simple vista:
+> una clave de 1024 empieza por `p=MIGfMA0G…` (234 caracteres) y una de 2048 por
+> `p=MIIBIjAN…` (~410). Si no empieza por `MIIBIjAN`, es la equivocada.
 
 ### 10.3 Por qué el DMARC sigue en `p=none`
 
