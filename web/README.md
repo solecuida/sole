@@ -69,11 +69,37 @@ la tabla con la publishable key devuelve `[]`; insertar sin consentimiento devue
 Campos útiles al revisar la tabla: `atendido` (booleano, para marcar los ya
 contactados) y `notas` (texto libre).
 
-### Aviso por correo (pendiente)
+### Aviso por correo de cada contacto nuevo
 
-Sin esto hay que revisar la tabla a mano. Para que llegue un correo por cada
-contacto: Database → Webhooks → nuevo webhook sobre `insert` en `contactos`
-apuntando a una Edge Function que envíe el correo (Resend o similar).
+Trigger `contactos_avisar` → función `public.avisar_contacto_nuevo()` → API de
+Resend vía `pg_net`. Sin Edge Function.
+
+Tres reglas que tiene ese código y conviene no romper:
+
+1. **El correo no lleva datos identificables.** Solo el tipo de contacto, la
+   comuna y la hora, más el link a la tabla. El nombre, el correo y el mensaje
+   no salen nunca de Supabase — por eso la página de privacidad puede seguir
+   declarando solo a Supabase y Vercel como terceros. Si algún día se decide
+   mandar el contenido completo, hay que agregar Resend a esa página primero.
+2. **Falla en silencio.** Todo va dentro de un `exception when others`, así que
+   si Resend cae, la clave expira o la red falla, el contacto igual se guarda.
+   Perder un aviso es molesto; perder a alguien que se animó a escribir, no.
+3. **La API key vive en Vault**, no en el cuerpo de la función.
+
+Para activarlo hace falta una cuenta en [resend.com](https://resend.com) (plan
+gratuito) y guardar dos secretos, una sola vez, desde el SQL Editor:
+
+```sql
+select vault.create_secret('re_TU_API_KEY',      'RESEND_API_KEY');
+select vault.create_secret('jose@solecuida.com', 'AVISO_DESTINO');
+```
+
+Mientras esos secretos no existan, la función sale temprano: no avisa, pero
+tampoco falla. Para cambiarlos después se usa `vault.update_secret`.
+
+El remitente es `onboarding@resend.dev`, que Resend permite sin verificar
+dominio siempre que el destinatario sea el dueño de la cuenta. Para mandar a
+otras direcciones hay que verificar `solecuida.com` en Resend.
 
 ### Borrado a petición
 
