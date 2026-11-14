@@ -1,0 +1,32 @@
+# Decisiones
+
+Registro de cada decisión **A CRITERIO** del prototipo: qué se eligió, qué se descartó y por qué. Las decisiones marcadas DECIDIDO en `PROTOTIPO-Brief-Fable.md` no se repiten aquí. El detalle técnico de las primeras filas está en `blueprints/sole-prototipo/blueprint.md` §20.3.
+
+Cuando el brief y el plano se contradicen, gana el brief en el *qué* y el plano en el *cómo*; cada conflicto queda anotado en la segunda tabla.
+
+## Decisiones del plano de construcción
+
+| Decisión | Alternativa descartada | Por qué | Fecha |
+|---|---|---|---|
+| Componentes propios sobre HTML nativo (`button`, `fieldset`, `dialog`), sin librería de componentes | shadcn/ui o Radix | Menos dependencias que mantener, accesibilidad nativa y código que el fundador puede leer y arreglar en una tarde | 2026-11-13 |
+| Supabase vive dentro de `app/supabase/` | Carpeta `supabase/` en la raíz del repo | Un solo `package.json` y una sola carpeta de trabajo para la CLI, las pruebas y los scripts | 2026-11-13 |
+| El correo de la app sale por Resend desde `notificaciones.solecuida.com` | SMTP de Zoho | Protege la reputación de `solecuida.com`, que es el correo personal del fundador (`CORREO-Configuracion-Zoho.md` §6) | 2026-11-13 |
+| El despachador de avisos es una ruta de Next.js (`/api/cron/dispatch`) llamada por `pg_cron` y `pg_net` con un secreto | Edge Function de Supabase o Vercel Cron | Mismo lenguaje y mismas pruebas que el resto de la app; el plan gratuito de Vercel no permite cron cada minuto | 2026-11-13 |
+| `dev` y `build` corren con `--webpack` y Tailwind entra por PostCSS | Turbopack (el modo por defecto de Next.js 16) | Serwist, que genera el service worker de la PWA, es un plugin de webpack | 2026-11-13 |
+| Precios de prueba del plan familiar: $2.990, $4.990 y $7.990 al mes (CLP). Solo se muestran para medir interés; no se cobra nada | No mostrar precios | El brief pide 2 o 3 precios de prueba en la puerta falsa del plan familiar (F11) | 2026-11-13 |
+| El nombre del medicamento nunca va en el aviso push: el aviso lleva solo el título del recordatorio | Mostrar nombre e indicación en la notificación | Una notificación se ve en la pantalla bloqueada y pasa por servidores de terceros; el nombre y la indicación se guardan cifrados | 2026-11-13 |
+| El formulario de contacto de la web pasa por la app (`/api/web/contact`), que verifica Turnstile en el servidor | Turnstile solo en el navegador con inserción anónima directa en la base | Un captcha que no se verifica en el servidor no protege nada | 2026-11-13 |
+| Análisis estático: Semgrep en cada push y CodeQL solo si el repositorio es público | Solo CodeQL | CodeQL es de pago en repositorios privados; Semgrep es gratuito en ambos casos | 2026-11-13 |
+| Al borrar la cuenta, se desactiva al instante y los datos se eliminan a los 7 días; en ese plazo se puede recuperar | Borrado inmediato | Protege de un toque accidental sin dejar datos guardados indefinidamente | 2026-11-13 |
+| Sin respaldo por correo ni SMS de los recordatorios: sin avisos push, lo pendiente se ve en "Hoy" con un aviso persistente | Enviar un correo o SMS cuando el push no llega | Costo cero y menos datos a terceros; el panel mide cuántas usuarias tienen avisos activos | 2026-11-13 |
+
+## Decisiones tomadas durante la construcción
+
+| Decisión | Alternativa descartada | Por qué | Fecha |
+|---|---|---|---|
+| Conflicto brief ↔ plano: el brief (§5) pide enviar los avisos desde una Edge Function; se construye como ruta de Next.js, según el plano | Seguir el brief al pie de la letra | Es una decisión de *cómo*, y ahí manda el plano; el resultado para la usuaria es el mismo | 2026-11-14 |
+| La construcción se hace en la rama `proyect/prototipo-app-agentes-ia-a48b9b`, con un pull request hacia `main` al cierre de cada fase | Trabajar directo sobre `main` | Instrucción del fundador; cada fase queda revisable antes de integrarse | 2026-11-14 |
+| Acciones de GitHub fijadas a su versión mayor vigente: `actions/checkout@v7`, `actions/setup-node@v7`, `pnpm/action-setup@v6`, `actions/upload-artifact@v7`, `gitleaks/gitleaks-action@v3` | Fijar por hash de commit | El plano pide la etiqueta mayor; Dependabot las mantiene al día. Versiones consultadas en los repositorios oficiales de GitHub el 2026-11-14 | 2026-11-14 |
+| El job `gitleaks` de CI usa la acción oficial y lee el secreto `GITLEAKS_LICENSE` | Instalar el binario de gitleaks a mano en el job | El plano pide la acción oficial. En repositorios de una organización (este es `solecuida/sole`) la acción exige una licencia gratuita: queda como tarea del fundador en `PENDIENTES.md` | 2026-11-14 |
+| Las cuatro reglas `!important` de "reducir movimiento" en `globals.css` llevan una excepción explícita del linter | Quitar `!important` | Sin `!important`, cualquier clase de animación le gana a la regla global y la app dejaría de respetar la preferencia de la persona (WCAG 2.3.3) | 2026-11-14 |
+| `dns-solecuida-respaldo-2026-11-14.md` (respaldo de DNS del fundador, sin versionar) quedó excluido en `.git/info/exclude` | Dejar que `git add -A` lo sume a un commit | Es un archivo personal del fundador que no forma parte del prototipo; él decide si se versiona | 2026-11-14 |
