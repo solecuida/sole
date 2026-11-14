@@ -256,7 +256,7 @@
       "app/tests/db/rls-private.test.ts",
       "app/tests/db/rate-limit.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E2-T2",
