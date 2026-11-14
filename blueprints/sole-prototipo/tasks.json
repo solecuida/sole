@@ -25,7 +25,7 @@
       "app/tests/unit/env-health.test.ts",
       "app/tests/e2e/smoke.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E1-T2",
