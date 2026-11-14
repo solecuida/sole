@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { safeNextPath } from "@/lib/auth/route-rules";
 import { appUrl } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
@@ -21,11 +22,6 @@ const ERROR_PARAM: Record<LoginErrorCode, string> = {
 function field(formData: FormData, name: string): string | undefined {
   const value = formData.get(name);
   return typeof value === "string" && value.length > 0 ? value : undefined;
-}
-
-/** Solo rutas internas: empieza con "/" y no con "//". */
-function internalPath(next: string | undefined): string {
-  return next?.startsWith("/") && !next.startsWith("//") ? next : "/hoy";
 }
 
 async function realDeps(): Promise<LoginDeps> {
@@ -77,7 +73,7 @@ export async function signInWithPassword(formData: FormData): Promise<void> {
       modo: "clave",
     });
   }
-  redirect(internalPath(field(formData, "next")));
+  redirect(safeNextPath(field(formData, "next")));
 }
 
 export async function signOut(): Promise<void> {

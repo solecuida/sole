@@ -317,7 +317,7 @@
       "app/tests/unit/proxy-rules.test.ts",
       "app/tests/e2e/auth.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E2-T4",
