@@ -117,7 +117,7 @@
       "app/src/lib/design/tokens.ts",
       "app/tests/unit/design-system.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E1-T5",
