@@ -672,7 +672,7 @@
       "app/tsconfig.json",
       "app/tests/e2e/pwa.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E3-T8",
