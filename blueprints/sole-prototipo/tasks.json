@@ -57,7 +57,7 @@
       "app/tests/db/helpers.ts",
       "app/tests/db/connection.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E1-T3",
