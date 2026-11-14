@@ -437,7 +437,7 @@
       "app/src/components/onboarding/install-guide.tsx",
       "app/tests/db/create-circle.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E2-T8",
