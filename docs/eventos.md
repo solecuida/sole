@@ -56,7 +56,7 @@ Este documento y `app/src/server/events/catalog.ts` dicen lo mismo y cambian jun
 | `period` | `dia`, `semana`, `mes` |
 | `format` | `png`, `pdf` |
 | `survey` | `d3`, `d14`, `d28`, `d56` |
-| `door` | `sole_ia`, `recetas`, `plan_familiar`, `comunidad`, `fotos`, `invitar_familiar` |
+| `door` | `ia`, `recetas`, `plan_familiar`, `comunidad`, `fotos`, `invitar_familiar` |
 | `choice` | `2990`, `4990`, `7990` (precio de prueba elegido, en pesos al mes) o `none` |
 | `feature` | `informe_medico` |
 | `result` | `granted`, `denied`, `default` |

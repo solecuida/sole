@@ -27,9 +27,9 @@ export const SCREENS = [
   "pronto",
 ] as const;
 
-/** Puertas falsas de F11. */
+/** Puertas falsas de F11 (mismos valores que `fake_door_interest.door_key`). */
 export const DOORS = [
-  "sole_ia",
+  "ia",
   "recetas",
   "plan_familiar",
   "comunidad",
