@@ -562,7 +562,7 @@
       "app/src/components/reminders/reminder-form.tsx",
       "app/tests/e2e/reminders.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E3-T4",

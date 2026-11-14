@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { decryptField, encryptField } from "@/lib/crypto/field";
+import { KINDS_WITH_ADVANCE } from "@/lib/reminders/labels";
 import { fail, ok, type Result } from "@/lib/result";
 import { Constants, type Database } from "@/lib/supabase/database.types";
 import { track } from "@/server/events/track";
@@ -20,13 +21,6 @@ export type ReminderErrorCode =
   | "forbidden"
   | "not_found"
   | "internal";
-
-/** Tipos que avisan con días de anticipación (3 días antes, el día anterior y el mismo día). */
-export const KINDS_WITH_ADVANCE: readonly ReminderKind[] = [
-  "appointment",
-  "errand",
-  "important_date",
-];
 
 const MED_NAME = "reminders.med_name";
 const MED_INSTRUCTIONS = "reminders.med_instructions";
