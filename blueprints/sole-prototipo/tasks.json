@@ -851,7 +851,7 @@
       "app/tests/unit/calendar.test.ts",
       "app/tests/e2e/calendar.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E4-T6",
