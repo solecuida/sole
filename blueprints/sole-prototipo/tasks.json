@@ -1,0 +1,2069 @@
+[
+  {
+    "id": "E1-T1",
+    "title": "Montar el esqueleto de la app y su endpoint de salud",
+    "epic": "01-preparacion",
+    "dependencies": [],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `pnpm -C app test tests/unit/env-health.test.ts` runs THE SYSTEM SHALL pass, asserting that `GET` from `src/app/api/health/route.ts` answers 200 with body `{ ok: true, data: { status: \"ok\" } }` plus a `time` field and the header `cache-control: no-store`.",
+      "WHEN `requireEnv(\"SOLE_NO_EXISTE\")` is called with that variable unset THE SYSTEM SHALL throw `MissingEnvError` whose message contains `SOLE_NO_EXISTE`.",
+      "WHEN `tests/e2e/smoke.spec.ts` runs against the production build started on port 3100 THE SYSTEM SHALL answer `GET /api/health` with status 200 and `ok: true`.",
+      "WHEN `pnpm -C app lint` and `pnpm -C app typecheck` run THE SYSTEM SHALL exit 0."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/unit/env-health.test.ts",
+      "pnpm -C app test:e2e tests/e2e/smoke.spec.ts"
+    ],
+    "checkpoint": "step-01-esqueleto",
+    "files": [
+      "app/next.config.ts",
+      "app/src/lib/env.ts",
+      "app/src/app/api/health/route.ts",
+      "app/tests/unit/env-health.test.ts",
+      "app/tests/e2e/smoke.spec.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E1-T2",
+    "title": "Conectar Supabase local, tipos generados y clientes",
+    "epic": "01-preparacion",
+    "dependencies": [
+      "E1-T1"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `pnpm -C app db:reset` runs THE SYSTEM SHALL apply every migration in `supabase/migrations` and `supabase/seed.sql` and exit 0.",
+      "WHEN `pnpm -C app db:test` runs THE SYSTEM SHALL pass `supabase/tests/database.test.sql`, which asserts that every table in schema `public` has RLS enabled, that the cron jobs `sole-dispatch` and `sole-daily` exist and that `authenticated` has no UPDATE privilege on `profiles.is_admin`.",
+      "WHEN `tests/db/connection.test.ts` runs THE SYSTEM SHALL read the organization `DEMO-LOCAL` with the admin client and SHALL receive error code `42501` and no rows when an anonymous client selects from `profiles`.",
+      "WHEN a user is created through `createTestUser` THE SYSTEM SHALL have a `profiles` row for that user created by the trigger `on_auth_user_created`."
+    ],
+    "verify": [
+      "pnpm -C app db:reset",
+      "pnpm -C app db:test",
+      "pnpm -C app db:types",
+      "pnpm -C app typecheck",
+      "pnpm -C app lint",
+      "pnpm -C app test tests/db/connection.test.ts"
+    ],
+    "checkpoint": "step-02-supabase-local",
+    "files": [
+      "app/src/lib/supabase/database.types.ts",
+      "app/src/lib/supabase/server.ts",
+      "app/src/lib/supabase/admin.ts",
+      "app/tests/db/helpers.ts",
+      "app/tests/db/connection.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E1-T3",
+    "title": "Configurar CI, Dependabot y escaneo de secretos",
+    "epic": "01-preparacion",
+    "dependencies": [
+      "E1-T1"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `tests/unit/repo-config.test.ts` reads `.github/workflows/ci.yml` THE SYSTEM SHALL find the jobs `quality`, `e2e`, `gitleaks`, `audit` and `semgrep`, and in `.github/dependabot.yml` the ecosystems `npm` with directory `/app` and `github-actions`.",
+      "WHEN `git config core.hooksPath` is read THE SYSTEM SHALL print `.githooks`.",
+      "WHEN the test reads `.githooks/pre-commit` THE SYSTEM SHALL find the `command -v gitleaks` guard, the warning branch that exits 0 and the invocation `gitleaks git --pre-commit --staged --redact`.",
+      "WHEN the test reads the root `.gitignore` THE SYSTEM SHALL find `.env.*` followed later by `!.env.example`, and `app/.gitignore` SHALL contain the line `!.env.example`."
+    ],
+    "verify": [
+      "pnpm -C app test tests/unit/repo-config.test.ts",
+      "test \"$(git config core.hooksPath)\" = .githooks",
+      "sh .githooks/pre-commit"
+    ],
+    "checkpoint": "step-03-ci-y-secretos",
+    "files": [
+      ".github/workflows/ci.yml",
+      ".github/dependabot.yml",
+      ".gitleaks.toml",
+      ".githooks/pre-commit",
+      "app/tests/unit/repo-config.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E1-T4",
+    "title": "Definir las variables de diseño y la tipografía",
+    "epic": "01-preparacion",
+    "dependencies": [
+      "E1-T1"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `tests/unit/design-system.test.ts` runs THE SYSTEM SHALL find every text pair in `contrastPairs` at 4.5:1 or more and every `borderStrong` and `focus` pair at 3:1 or more against `background` and `surface`, in light and in dark.",
+      "WHEN the same test reads `src/app/globals.css` THE SYSTEM SHALL find every token of `tokens.ts` declared with the same hex in `:root` for light and inside the `prefers-color-scheme: dark` block for dark.",
+      "WHEN the same test scans `src/` THE SYSTEM SHALL find zero hex color literals outside `src/app/globals.css` and `src/lib/design/tokens.ts`.",
+      "WHEN the same test reads `src/app/layout.tsx` THE SYSTEM SHALL find `lang=\"es-CL\"`, `Atkinson_Hyperlegible` with `display: \"swap\"` and a link to `#contenido` with the text \"Saltar al contenido\".",
+      "WHEN `pnpm -C app build` runs THE SYSTEM SHALL exit 0."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/unit/design-system.test.ts",
+      "pnpm -C app build"
+    ],
+    "checkpoint": "step-04-tokens-diseno",
+    "files": [
+      "app/src/app/globals.css",
+      "app/src/app/layout.tsx",
+      "app/src/app/page.tsx",
+      "app/src/lib/design/tokens.ts",
+      "app/tests/unit/design-system.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E1-T5",
+    "title": "Crear los componentes base accesibles",
+    "epic": "01-preparacion",
+    "dependencies": [
+      "E1-T4"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `Field` renders with an `error` THE SYSTEM SHALL give the control `aria-invalid=\"true\"`, link it through `aria-describedby` to an element with `role=\"alert\"` that holds the error text, and associate the `<label>` through `htmlFor`.",
+      "WHEN `ChoiceGroup` renders three options THE SYSTEM SHALL output one `<fieldset>` with a `<legend>` and three native radio inputs, or three checkboxes when `multiple` is set, each with an accessible name.",
+      "WHEN `Button` renders THE SYSTEM SHALL carry the classes `min-h-12` and `min-w-12`, and with `pending` SHALL set `aria-busy=\"true\"` and `disabled`.",
+      "WHEN `Dialog` opens THE SYSTEM SHALL expose `aria-labelledby` pointing at its title and a button whose accessible name is \"Cerrar\"."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/unit/ui-components.test.tsx"
+    ],
+    "checkpoint": "step-05-componentes-base",
+    "files": [
+      "app/src/components/ui/button.tsx",
+      "app/src/components/ui/field.tsx",
+      "app/src/components/ui/choice-group.tsx",
+      "app/src/components/ui/dialog.tsx",
+      "app/tests/unit/ui-components.test.tsx"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E1-T6",
+    "title": "Abrir DECISIONES, PENDIENTES, límites y licencias",
+    "epic": "01-preparacion",
+    "dependencies": [
+      "E1-T1"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `tests/unit/docs-base.test.ts` runs THE SYSTEM SHALL find in `DECISIONES.md` a table with the header `| Decisión | Alternativa descartada | Por qué | Fecha |` and at least one data row.",
+      "WHEN it reads `PENDIENTES.md` THE SYSTEM SHALL find the headings `## Prioridad alta`, `## Prioridad media` and `## Prioridad baja`.",
+      "WHEN it reads `docs/limites.md` THE SYSTEM SHALL find one table row for each of Supabase, Vercel, Resend, Sentry, Cloudflare Turnstile and GitHub Actions, each containing `[VERIFICAR]` or an `https://` source.",
+      "WHEN it reads `docs/licencias.md` THE SYSTEM SHALL find Atkinson Hyperlegible with the license `SIL Open Font License 1.1`."
+    ],
+    "verify": [
+      "pnpm -C app test tests/unit/docs-base.test.ts"
+    ],
+    "checkpoint": "step-06-documentos-base",
+    "files": [
+      "DECISIONES.md",
+      "PENDIENTES.md",
+      "docs/limites.md",
+      "docs/licencias.md",
+      "app/tests/unit/docs-base.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E1-T7",
+    "title": "Escribir el diseño funcional de F1–F11, F14 y F16",
+    "epic": "01-preparacion",
+    "dependencies": [
+      "E1-T6"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `tests/unit/docs-diseno.test.ts` runs THE SYSTEM SHALL find, for every F listed in its `REQUIRED` map, a heading `## F<n> ·` in the mapped file followed by the subsections `### Flujo`, `### Datos`, `### Permisos` and `### Criterios de aceptación`.",
+      "WHEN it reads `docs/diseno/familiares.md` THE SYSTEM SHALL also find `### Notificaciones` and `### Modelo de datos`, and the words `accept_invitation`, `claim_task` and `notify_kinds`.",
+      "WHEN it scans `docs/diseno/` THE SYSTEM SHALL find none of the words `diagnóstico`, `dosis` or `en memoria`."
+    ],
+    "verify": [
+      "pnpm -C app test tests/unit/docs-diseno.test.ts"
+    ],
+    "checkpoint": "step-07-diseno-funcional-1",
+    "files": [
+      "docs/diseno/nucleo.md",
+      "docs/diseno/registro-y-cuidado.md",
+      "docs/diseno/informes-y-escucha.md",
+      "docs/diseno/familiares.md",
+      "app/tests/unit/docs-diseno.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E1-T8",
+    "title": "Completar el diseño funcional de F12, F13, F15 y F17",
+    "epic": "01-preparacion",
+    "dependencies": [
+      "E1-T7"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `tests/unit/docs-diseno.test.ts` runs THE SYSTEM SHALL find each of F1 to F17 exactly once across `docs/diseno/`, each with the subsections `### Flujo`, `### Datos`, `### Permisos` and `### Criterios de aceptación`.",
+      "WHEN it reads `docs/diseno/persona-cuidada.md` THE SYSTEM SHALL find the sentence \"Sole no reemplaza a un servicio de emergencia y no puede garantizar que un aviso llegue.\" and the marker `[VERIFICAR`.",
+      "WHEN it reads `docs/diseno/transversal.md` THE SYSTEM SHALL find the headings `## Sin conexión`, `## Rendimiento`, `## Textos` and `## Investigación`."
+    ],
+    "verify": [
+      "pnpm -C app test tests/unit/docs-diseno.test.ts"
+    ],
+    "checkpoint": "step-08-diseno-funcional-2",
+    "files": [
+      "docs/diseno/persona-cuidada.md",
+      "docs/diseno/cuenta.md",
+      "docs/diseno/admin-y-organizaciones.md",
+      "docs/diseno/transversal.md",
+      "app/tests/unit/docs-diseno.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E2-T1",
+    "title": "Probar el aislamiento por rol y los límites de frecuencia",
+    "epic": "02-cimientos",
+    "dependencies": [
+      "E1-T2"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `tests/db/rls-circles.test.ts` runs with caregivers A and B THE SYSTEM SHALL return zero rows to B for every select on A's `circles`, `reminders`, `reminder_occurrences`, `journal_entries`, `tasks` and `contacts`, and SHALL reject B's insert of a reminder into A's circle with `42501`.",
+      "WHEN a `family` member of A's circle selects A's reminders THE SYSTEM SHALL return them, SHALL reject that member's reminder insert and delete with `42501`, and that member's update SHALL affect zero rows.",
+      "WHEN caregiver A updates `circle_members.role`, `reminders.circle_id`, `reminders.created_by` or `profiles.is_admin` THE SYSTEM SHALL reject each with `42501`.",
+      "WHEN `tests/db/rls-private.test.ts` runs THE SYSTEM SHALL return zero rows when anyone other than the owner selects `selfcare_checkins` or `push_subscriptions`, zero rows when a non-admin selects `events`, and SHALL reject any update to `consents` with `42501`.",
+      "WHEN `checkRateLimit` is called 4 times inside one window with limit 3 THE SYSTEM SHALL return `allowed: true` three times and `allowed: false` the fourth, while a different key stays allowed."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/rls-circles.test.ts",
+      "pnpm -C app test tests/db/rls-private.test.ts",
+      "pnpm -C app test tests/db/rate-limit.test.ts"
+    ],
+    "checkpoint": "step-09-rls-y-limites",
+    "files": [
+      "app/src/server/security/rate-limit.ts",
+      "app/tests/db/rls-circles.test.ts",
+      "app/tests/db/rls-private.test.ts",
+      "app/tests/db/rate-limit.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E2-T2",
+    "title": "Construir el ingreso con enlace mágico y contraseña",
+    "epic": "02-cimientos",
+    "dependencies": [
+      "E1-T2",
+      "E1-T5",
+      "E2-T1"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `requestMagicLink` receives a valid email THE SYSTEM SHALL call `signInWithOtp` once with `emailRedirectTo` equal to `APP_URL + \"/auth/confirm\"`, `shouldCreateUser: true` and the uppercase `org_code` in `data`, and SHALL return `{ ok: true }`.",
+      "WHEN the email is malformed THE SYSTEM SHALL return `{ ok: false, error: { code: \"validation_failed\" } }` without calling Supabase.",
+      "WHEN the rate limiter refuses THE SYSTEM SHALL return `{ ok: false, error: { code: \"rate_limited\" } }` without calling Supabase.",
+      "WHEN `signInWithOtp` returns an error THE SYSTEM SHALL still return `{ ok: true }`, so the answer never reveals whether an account exists.",
+      "WHEN `passwordSignIn` gets a wrong password or an unknown email THE SYSTEM SHALL return the same `{ ok: false, error: { code: \"invalid_credentials\", message: \"Correo o contraseña incorrectos.\" } }` in both cases."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/unit/auth-login.test.ts"
+    ],
+    "checkpoint": "step-10-autenticacion-login",
+    "files": [
+      "app/src/server/auth/login.ts",
+      "app/src/app/(auth)/entrar/page.tsx",
+      "app/src/app/(auth)/entrar/actions.ts",
+      "app/tests/unit/auth-login.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E2-T3",
+    "title": "Proteger rutas, confirmar enlaces y fijar cookies seguras",
+    "epic": "02-cimientos",
+    "dependencies": [
+      "E2-T2"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `tests/unit/proxy-rules.test.ts` runs THE SYSTEM SHALL classify `/`, `/entrar`, `/auth/confirm`, `/v/abc`, `/org/abc`, `/~offline`, `/manifest.webmanifest`, `/icons/192` and `/api/health` as public and `/hoy`, `/cuenta` and `/admin` as protected, and `safeNextPath` SHALL turn `//evil.example` and `https://evil.example` into `/hoy`.",
+      "WHEN an anonymous browser requests `/hoy` THE SYSTEM SHALL redirect to `/entrar?next=%2Fhoy`.",
+      "WHEN a user signs in with email and password on `/entrar` THE SYSTEM SHALL set a session cookie whose name starts with `sb-` and that is `HttpOnly` with `SameSite=Lax`.",
+      "WHEN `/auth/confirm` is requested with an invalid `token_hash` THE SYSTEM SHALL redirect to `/entrar?error=enlace`."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/unit/proxy-rules.test.ts",
+      "pnpm -C app test:e2e tests/e2e/auth.spec.ts"
+    ],
+    "checkpoint": "step-11-autenticacion-sesion",
+    "files": [
+      "app/src/lib/auth/route-rules.ts",
+      "app/src/proxy.ts",
+      "app/src/app/auth/confirm/route.ts",
+      "app/tests/unit/proxy-rules.test.ts",
+      "app/tests/e2e/auth.spec.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E2-T4",
+    "title": "Pedir los consentimientos por capas antes de guardar datos",
+    "epic": "02-cimientos",
+    "dependencies": [
+      "E2-T3"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `recordConsents` is called with `terms` and `sensitive` true and both declarations accepted THE SYSTEM SHALL insert one `consents` row per layer with version `2026-11-14`, and `getConsentState` SHALL report `{ terms: true, sensitive: true, research: false }` when research was not granted.",
+      "WHEN `recordConsents` is called with either declaration unchecked THE SYSTEM SHALL return `{ ok: false, error: { code: \"validation_failed\" } }` and insert no row.",
+      "WHEN a user without the required consents calls the RPC `create_circle` THE SYSTEM SHALL reject it with the message `consent_required`.",
+      "WHEN research consent is revoked with `revokeResearch` THE SYSTEM SHALL append a row with `granted = false`, `getConsentState` SHALL report `research: false`, and the earlier rows SHALL remain unchanged."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/consents.test.ts"
+    ],
+    "checkpoint": "step-12-consentimientos",
+    "files": [
+      "app/src/server/consents/consents.ts",
+      "app/src/app/(onboarding)/layout.tsx",
+      "app/src/app/(onboarding)/bienvenida/consentimientos/page.tsx",
+      "app/src/app/(app)/layout.tsx",
+      "app/tests/db/consents.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E2-T5",
+    "title": "Crear el catálogo de eventos y su registro seudónimo",
+    "epic": "02-cimientos",
+    "dependencies": [
+      "E2-T4"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `tests/unit/events-catalog.test.ts` runs THE SYSTEM SHALL find every event of `EVENT_CATALOG` as a row of the table in `docs/eventos.md` and every row of that table in the catalog, each listing at least one hypothesis among H1 to H6.",
+      "WHEN a catalog schema parses props with an undeclared key or a string outside its enum THE SYSTEM SHALL reject them.",
+      "WHEN `track` is called for a non-technical event by a user without research consent THE SYSTEM SHALL insert nothing and return `{ stored: false }`, and for the technical event `app.error` SHALL insert one row.",
+      "WHEN `track` stores an event THE SYSTEM SHALL write the user's `pseudonym_id` and `org_code` and no column containing the user id or email."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/unit/events-catalog.test.ts",
+      "pnpm -C app test tests/db/events.test.ts"
+    ],
+    "checkpoint": "step-13-eventos-base",
+    "files": [
+      "app/src/server/events/catalog.ts",
+      "app/src/server/events/track.ts",
+      "docs/eventos.md",
+      "app/tests/unit/events-catalog.test.ts",
+      "app/tests/db/events.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E2-T6",
+    "title": "Cargar plantillas, consejos y recursos iniciales",
+    "epic": "02-cimientos",
+    "dependencies": [
+      "E1-T2"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `pnpm -C app db:reset` runs THE SYSTEM SHALL apply `supabase/migrations/20261114001000_contenido_inicial.sql` and exit 0.",
+      "WHEN `tests/db/content.test.ts` runs THE SYSTEM SHALL find one `care_templates` row for every value of `Constants.public.Enums.care_type`, the `desde_cero` row with zero items and every other row with between 3 and 6 items that parse with `templateItemSchema`.",
+      "WHEN the test reads `tips` THE SYSTEM SHALL find at least 20 active rows, at least 5 of kind `actividad`, and none containing the words `dosis`, `mg`, `diagnóstico` or `dieta`.",
+      "WHEN the test reads the `resources` created by the migration (every row except the local seed row `Recurso de prueba (solo local)`) THE SYSTEM SHALL find each with an `https://` `source_url` and `verified_at` null.",
+      "WHEN `ruleSchema` parses `{ freq: \"weekly\", weekdays: [8], times: [\"25:00\"], startDate: \"2026-02-30\" }` THE SYSTEM SHALL reject it with issues on `weekdays`, `times` and `startDate`."
+    ],
+    "verify": [
+      "pnpm -C app db:reset",
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/content.test.ts"
+    ],
+    "checkpoint": "step-14-contenido-inicial",
+    "files": [
+      "app/supabase/migrations/20261114001000_contenido_inicial.sql",
+      "app/src/server/reminders/rule-schema.ts",
+      "app/tests/db/content.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E2-T7",
+    "title": "Crear la persona cuidada desde una plantilla (F1)",
+    "epic": "02-cimientos",
+    "dependencies": [
+      "E2-T4",
+      "E2-T5",
+      "E2-T6"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `createCircleWithTemplate` runs for a consented user with care type `dialisis` THE SYSTEM SHALL create one circle, one `caregiver` membership for that user and one `reminders` row per item of the `dialisis` template with `source = 'template'` and `rule.startDate` equal to today in `America/Santiago`.",
+      "WHEN it runs with care type `desde_cero` THE SYSTEM SHALL create the circle and zero reminders.",
+      "WHEN the cared name is empty or longer than 60 characters THE SYSTEM SHALL return `{ ok: false, error: { code: \"validation_failed\" } }` and create nothing.",
+      "WHEN the same caregiver creates a second circle THE SYSTEM SHALL succeed, and `listMyCircles` SHALL return both.",
+      "WHEN creation succeeds for a user with research consent THE SYSTEM SHALL store one `flow.completed` event with `flow = \"onboarding\"`."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/create-circle.test.ts"
+    ],
+    "checkpoint": "step-15-bienvenida-f1",
+    "files": [
+      "app/src/server/circles/circles.ts",
+      "app/src/app/(onboarding)/bienvenida/page.tsx",
+      "app/src/components/onboarding/care-type-picker.tsx",
+      "app/src/components/onboarding/install-guide.tsx",
+      "app/tests/db/create-circle.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E2-T8",
+    "title": "Probar la bienvenida completa y el origen por organización",
+    "epic": "02-cimientos",
+    "dependencies": [
+      "E2-T7"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN a new user without consents signs in THE SYSTEM SHALL redirect any `(app)` route to `/bienvenida/consentimientos`, where every checkbox starts unchecked.",
+      "WHEN the consent form is submitted without the age and authorization declarations THE SYSTEM SHALL show an error inside an element with `role=\"alert\"` and stay on the page.",
+      "WHEN the user completes the consents and the welcome form with care type `adulto_mayor` THE SYSTEM SHALL land on `/hoy` showing the cared person's name and the install guide with separate \"Android con Chrome\" and \"iPhone con Safari\" instructions.",
+      "WHEN axe runs on `/`, `/entrar`, `/bienvenida/consentimientos`, `/bienvenida` and `/hoy` with the tags wcag2a, wcag2aa, wcag21a, wcag21aa and wcag22aa THE SYSTEM SHALL report 0 violations.",
+      "WHEN a user is created with `org_code` metadata `demo-local` THE SYSTEM SHALL store `DEMO-LOCAL` in `profiles.org_code`, and an unknown code SHALL be stored as null."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/org-attribution.test.ts",
+      "pnpm -C app test:e2e tests/e2e/onboarding.spec.ts"
+    ],
+    "checkpoint": "step-16-e2e-bienvenida",
+    "files": [
+      "app/tests/e2e/fixtures.ts",
+      "app/tests/e2e/onboarding.spec.ts",
+      "app/src/app/(app)/hoy/page.tsx",
+      "app/src/app/page.tsx",
+      "app/tests/db/org-attribution.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E3-T1",
+    "title": "Expandir reglas de repetición con horario de Chile",
+    "epic": "03-recordatorios-y-avisos",
+    "dependencies": [
+      "E2-T6"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN a `daily` rule with times `[\"08:00\",\"20:00\"]` is expanded over 14 local days in `America/Santiago` THE SYSTEM SHALL return 28 instants, each formatting to 08:00 or 20:00 in that zone.",
+      "WHEN a `weekly` rule with weekdays `[1,3,5]` is expanded over two weeks THE SYSTEM SHALL return only Mondays, Wednesdays and Fridays.",
+      "WHEN a `monthly` rule with `dayOfMonth: 31` is expanded over a year THE SYSTEM SHALL use the last day of every shorter month, and a `yearly` rule on February 29 SHALL fall on February 28 in non-leap years.",
+      "WHEN a `daily` rule with times `[\"00:30\",\"08:00\",\"23:30\"]` is expanded over all of 2027 in `America/Santiago` THE SYSTEM SHALL return exactly one instant per time per local day, strictly increasing, each at the requested local time or, only on the spring-forward day, at most 60 minutes later.",
+      "WHEN `advanceNotices` gets an appointment at 15:00 local with `[3,1,0]` THE SYSTEM SHALL return fire times at 09:00 local 3 days before, 1 day before and the same day, and for an appointment at 08:00 SHALL omit the same-day notice.",
+      "WHEN a rule has an `endDate` THE SYSTEM SHALL return no instant after the end of that local day."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/unit/recurrence.test.ts",
+      "pnpm -C app test tests/unit/recurrence-dst.test.ts"
+    ],
+    "checkpoint": "step-17-recurrencia",
+    "files": [
+      "app/src/server/reminders/recurrence.ts",
+      "app/tests/unit/recurrence.test.ts",
+      "app/tests/unit/recurrence-dst.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E3-T2",
+    "title": "Cifrar campos sensibles y guardar recordatorios",
+    "epic": "03-recordatorios-y-avisos",
+    "dependencies": [
+      "E3-T1",
+      "E2-T1",
+      "E2-T5"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `encryptField` and then `decryptField` run with the same context THE SYSTEM SHALL return the original text, the ciphertext SHALL start with `v1.`, and two encryptions of the same text SHALL differ.",
+      "WHEN `decryptField` receives a ciphertext with one character changed or a different context THE SYSTEM SHALL throw `FieldDecryptError`.",
+      "WHEN `FIELD_ENCRYPTION_KEY` moves to version 2 with the old key in `FIELD_ENCRYPTION_KEY_PREVIOUS` THE SYSTEM SHALL still decrypt `v1.` values and encrypt new values as `v2.`.",
+      "WHEN a caregiver creates a medication reminder whose name is \"Losartán\" THE SYSTEM SHALL store `med_name_enc` starting with `v1.` and never the plain name, and `listReminders` SHALL return `medName: \"Losartán\"`.",
+      "WHEN a `family` member calls `createReminder` on that circle THE SYSTEM SHALL return `{ ok: false, error: { code: \"forbidden\" } }`, and WHEN the caregiver deletes a reminder THE SYSTEM SHALL set `active = false` and keep its occurrences.",
+      "WHEN an `appointment` reminder is created without `advanceDays` THE SYSTEM SHALL store `{3,1,0}`."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/unit/field-crypto.test.ts",
+      "pnpm -C app test tests/db/reminders.test.ts"
+    ],
+    "checkpoint": "step-18-recordatorios-datos",
+    "files": [
+      "app/src/lib/crypto/field.ts",
+      "app/tests/unit/field-crypto.test.ts",
+      "app/src/server/reminders/reminders.ts",
+      "app/tests/db/reminders.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E3-T3",
+    "title": "Crear y editar recordatorios desde la app (F3)",
+    "epic": "03-recordatorios-y-avisos",
+    "dependencies": [
+      "E3-T2",
+      "E2-T8"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN a caregiver creates from `/recordatorios/editar` a medication reminder titled \"Medicamento de la mañana\", daily at 08:00, importance important THE SYSTEM SHALL list it on `/recordatorios` with \"08:00\" and the label \"Importante\".",
+      "WHEN `tests/e2e/reminders.spec.ts` creates a daily reminder THE SYSTEM SHALL need at most 8 field interactions before pressing \"Guardar\" (H2: under 60 seconds).",
+      "WHEN the form is submitted with no time THE SYSTEM SHALL show \"Agrega al menos una hora.\" inside an element with `role=\"alert\"` and create nothing.",
+      "WHEN `/recordatorios/editar?fecha=2027-03-10` is opened THE SYSTEM SHALL prefill the start date with `2027-03-10`.",
+      "WHEN axe runs on `/recordatorios` and `/recordatorios/editar` THE SYSTEM SHALL report 0 violations."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test:e2e tests/e2e/reminders.spec.ts"
+    ],
+    "checkpoint": "step-19-recordatorios-ui",
+    "files": [
+      "app/src/app/(app)/recordatorios/page.tsx",
+      "app/src/app/(app)/recordatorios/editar/page.tsx",
+      "app/src/app/(app)/recordatorios/actions.ts",
+      "app/src/components/reminders/reminder-form.tsx",
+      "app/tests/e2e/reminders.spec.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E3-T4",
+    "title": "Materializar las ocurrencias de las próximas 48 horas",
+    "epic": "03-recordatorios-y-avisos",
+    "dependencies": [
+      "E3-T2"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `materializeOccurrences` runs with a fixed `now` for a daily 08:00 reminder THE SYSTEM SHALL create the `main` occurrences that fall inside the next 48 hours, each with `local_date` computed in `America/Santiago`.",
+      "WHEN it runs a second time with the same `now` THE SYSTEM SHALL create zero new rows.",
+      "WHEN an appointment falls 3 days after `now` with advance days `[3,1,0]` THE SYSTEM SHALL create the 3-days-before `advance` occurrence once its fire time enters the 48-hour window, and only once.",
+      "WHEN the circle is closed, the reminder is inactive, or the caregiver's profile has `deactivated_at` set THE SYSTEM SHALL create no occurrence for it."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/materialize.test.ts"
+    ],
+    "checkpoint": "step-20-materializacion",
+    "files": [
+      "app/src/server/reminders/materialize.ts",
+      "app/tests/db/materialize.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E3-T5",
+    "title": "Enviar avisos y el \"¿Lo hiciste?\" a los 15 minutos",
+    "epic": "03-recordatorios-y-avisos",
+    "dependencies": [
+      "E3-T4"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `runDispatch` runs at 08:00:30 for a pending 08:00 occurrence with a fake sender THE SYSTEM SHALL send exactly one notification to each caregiver subscription and set `notified_at`, and a second run SHALL send nothing more.",
+      "WHEN that occurrence is still `pending` 15 minutes after `notified_at` and the caregiver has `followup_minutes = 15` THE SYSTEM SHALL send one follow-up whose payload has the title \"¿Lo hiciste?\" and the actions `done` (\"Sí, listo\") and `not_done` (\"No\"), and set `followup_sent_at`.",
+      "WHEN the fake sender answers 410 for a subscription THE SYSTEM SHALL delete that `push_subscriptions` row.",
+      "WHEN two `runDispatch` calls overlap THE SYSTEM SHALL let only one hold the `dispatch` lease and the other SHALL return `{ skipped: true }`.",
+      "WHEN `POST /api/cron/dispatch` arrives without the correct `x-cron-secret` THE SYSTEM SHALL return 401 and send nothing.",
+      "WHEN a payload is built for a medication reminder THE SYSTEM SHALL not contain the decrypted medication name."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/dispatch.test.ts"
+    ],
+    "checkpoint": "step-21-despachador",
+    "files": [
+      "app/src/server/push/send.ts",
+      "app/src/server/reminders/dispatch.ts",
+      "app/src/app/api/cron/dispatch/route.ts",
+      "app/scripts/trigger-cron.ts",
+      "app/tests/db/dispatch.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E3-T6",
+    "title": "Publicar el manifiesto y los íconos de la PWA",
+    "epic": "03-recordatorios-y-avisos",
+    "dependencies": [
+      "E1-T4",
+      "E3-T5"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `GET /manifest.webmanifest` is requested THE SYSTEM SHALL return JSON with `short_name` \"Sole\", `start_url` \"/hoy\", `display` \"standalone\", `lang` \"es-CL\" and icons of sizes `192x192` and `512x512`, one of them with purpose `maskable`.",
+      "WHEN `GET /icons/192` and `GET /icons/512` are requested THE SYSTEM SHALL answer 200 with `content-type: image/png`, and `GET /icons/7` SHALL answer 404."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test:e2e tests/e2e/manifest.spec.ts"
+    ],
+    "checkpoint": "step-22-pwa-manifiesto",
+    "files": [
+      "app/src/app/manifest.ts",
+      "app/src/app/icons/[size]/route.tsx",
+      "app/tests/e2e/manifest.spec.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E3-T7",
+    "title": "Registrar el service worker con avisos push (Serwist)",
+    "epic": "03-recordatorios-y-avisos",
+    "dependencies": [
+      "E3-T6"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `GET /sw.js` is requested from the production build THE SYSTEM SHALL answer 200 with a JavaScript content type.",
+      "WHEN a page is loaded in the `android-gama-media` project THE SYSTEM SHALL register a service worker whose scope is the site root, checked with `navigator.serviceWorker.ready`.",
+      "WHEN `pnpm -C app typecheck` runs THE SYSTEM SHALL exit 0 with `src/sw.ts` included in the program."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test:e2e tests/e2e/pwa.spec.ts"
+    ],
+    "checkpoint": "step-23-pwa-service-worker",
+    "files": [
+      "app/src/sw.ts",
+      "app/next.config.ts",
+      "app/tsconfig.json",
+      "app/tests/e2e/pwa.spec.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E3-T8",
+    "title": "Activar, probar y mostrar el estado de los avisos",
+    "epic": "03-recordatorios-y-avisos",
+    "dependencies": [
+      "E3-T7"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN an authenticated user posts `{ action: \"subscribe\", subscription }` to `/api/push` THE SYSTEM SHALL store one `push_subscriptions` row for that user, and posting the same endpoint again SHALL leave exactly one row.",
+      "WHEN a second user subscribes with an endpoint already stored for the first THE SYSTEM SHALL move that row to the second user and leave none for the first.",
+      "WHEN `/api/push` is called without a session THE SYSTEM SHALL return 401 with `{ ok: false, error: { code: \"unauthorized\" } }`.",
+      "WHEN `{ action: \"unsubscribe\" }` is posted THE SYSTEM SHALL delete only the caller's row for that endpoint.",
+      "WHEN `pushStatus` is read for a user with no subscription THE SYSTEM SHALL return `{ active: false, count: 0 }`."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/push-subscriptions.test.ts"
+    ],
+    "checkpoint": "step-24-avisos-suscripcion",
+    "files": [
+      "app/src/server/push/subscriptions.ts",
+      "app/src/app/api/push/route.ts",
+      "app/src/components/push/push-settings.tsx",
+      "app/src/app/(app)/avisos/page.tsx",
+      "app/tests/db/push-subscriptions.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E4-T1",
+    "title": "Construir \"Hoy\" y la marca idempotente de ítems (F2)",
+    "epic": "04-dia-a-dia",
+    "dependencies": [
+      "E3-T8",
+      "E3-T3"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `getToday` runs for a circle with an important 08:00 item, a normal 13:00 item and a whenever item THE SYSTEM SHALL return them in the groups `important`, `normal` and `whenever`, each sorted by time.",
+      "WHEN an item's time has passed and it is still `pending` THE SYSTEM SHALL flag it `overdue: true`, and items marked `done` SHALL be counted in `progress.day.done`.",
+      "WHEN `POST /api/occurrences/mark` receives the same `idempotencyKey` twice THE SYSTEM SHALL apply the change once, write one `occurrence_marks` row and answer 200 both times.",
+      "WHEN it receives `status: \"not_done\"` with `reason: \"rechazo\"` THE SYSTEM SHALL store `not_done_reason = 'rechazo'`, and WHEN it receives `status: \"snoozed\"` with `snoozeMinutes: 30` THE SYSTEM SHALL set `snoozed_until` 30 minutes ahead.",
+      "WHEN a user who is not a member posts a mark THE SYSTEM SHALL answer 403 with code `forbidden` and change nothing.",
+      "WHEN an `idempotencyKey` already used for another occurrence is posted, or the occurrence's circle is closed, THE SYSTEM SHALL answer 409 with code `conflict` and change nothing."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/today.test.ts"
+    ],
+    "checkpoint": "step-25-hoy",
+    "files": [
+      "app/src/server/today/today.ts",
+      "app/src/app/(app)/hoy/page.tsx",
+      "app/src/components/today/occurrence-item.tsx",
+      "app/src/app/api/occurrences/mark/route.ts",
+      "app/tests/db/today.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E4-T2",
+    "title": "Sumar el consejo del día y el cambio de círculo",
+    "epic": "04-dia-a-dia",
+    "dependencies": [
+      "E4-T1"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `tipOfDay` is called twice with the same date THE SYSTEM SHALL return the same tip, and over 30 consecutive dates SHALL return at least 2 different tips when 2 or more are active.",
+      "WHEN the tip is an activity and the user activates \"Aceptar\" THE SYSTEM SHALL show it in today's `whenever` group, backed by a one-time reminder with `source = 'tip'`.",
+      "WHEN a caregiver with two circles opens `/hoy` THE SYSTEM SHALL show the circle switcher, and choosing the second circle SHALL show only that circle's items.",
+      "WHEN the user activates \"Hecho\" on an item THE SYSTEM SHALL show it as done without a full page reload, and \"No se hizo\" SHALL offer the reasons \"Lo rechazó\", \"No había\" and \"Otro\".",
+      "WHEN axe runs on `/hoy` THE SYSTEM SHALL report 0 violations."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/unit/tips.test.ts",
+      "pnpm -C app test:e2e tests/e2e/today.spec.ts"
+    ],
+    "checkpoint": "step-26-hoy-consejos-circulos",
+    "files": [
+      "app/src/server/today/tips.ts",
+      "app/src/components/today/tip-card.tsx",
+      "app/src/app/(app)/hoy/page.tsx",
+      "app/tests/unit/tips.test.ts",
+      "app/tests/e2e/today.spec.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E4-T3",
+    "title": "Encolar marcas sin conexión y reenviarlas al volver la señal",
+    "epic": "04-dia-a-dia",
+    "dependencies": [
+      "E4-T2"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN the browser goes offline after `/hoy` loaded and the user marks an item \"Hecho\" THE SYSTEM SHALL show \"Guardado sin conexión · se enviará cuando vuelva la señal\" and keep the item shown as done.",
+      "WHEN the browser comes back online THE SYSTEM SHALL replay the queued mark with `via = 'offline_sync'`, the occurrence SHALL be `done` in the database, and the pending counter SHALL disappear.",
+      "WHEN the same queued mark is replayed twice THE SYSTEM SHALL keep exactly one `occurrence_marks` row for its `idempotencyKey`.",
+      "WHEN the browser is offline THE SYSTEM SHALL announce \"Sin conexión\" in an `aria-live=\"polite\"` region."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test:e2e tests/e2e/offline-queue.spec.ts"
+    ],
+    "checkpoint": "step-27-sin-conexion-cola",
+    "files": [
+      "app/src/lib/offline/outbox.ts",
+      "app/src/components/today/offline-sync.tsx",
+      "app/src/components/today/occurrence-item.tsx",
+      "app/src/app/(app)/hoy/page.tsx",
+      "app/tests/e2e/offline-queue.spec.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E4-T4",
+    "title": "Mostrar \"Hoy\" guardado cuando no hay señal",
+    "epic": "04-dia-a-dia",
+    "dependencies": [
+      "E4-T3"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `/hoy` was opened once online and the page is reloaded with the network offline THE SYSTEM SHALL show the saved list of the day with the text \"Guardado a las\" followed by the save time.",
+      "WHEN a navigation to a page never visited happens offline THE SYSTEM SHALL serve the `/~offline` page instead of the browser's error page.",
+      "WHEN no snapshot exists and the offline page opens THE SYSTEM SHALL show \"Todavía no hay nada guardado en este teléfono. Abre Sole con conexión una vez.\""
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test:e2e tests/e2e/offline-reload.spec.ts"
+    ],
+    "checkpoint": "step-28-sin-conexion-lectura",
+    "files": [
+      "app/src/app/~offline/page.tsx",
+      "app/src/sw.ts",
+      "app/tests/e2e/offline-reload.spec.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E4-T5",
+    "title": "Mostrar el calendario de mes y de semana (F4)",
+    "epic": "04-dia-a-dia",
+    "dependencies": [
+      "E4-T1"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `buildMonth` runs for March 2027 with a weekly Monday reminder THE SYSTEM SHALL place it on every Monday of March 2027 and on no other day, in weeks that start on Monday.",
+      "WHEN `buildWeek` runs for a week that contains a yearly birthday THE SYSTEM SHALL include the birthday on its day.",
+      "WHEN the user opens `/calendario?vista=semana` THE SYSTEM SHALL show 7 day columns with that week's items, and the \"Mes\" control SHALL switch back to the month grid.",
+      "WHEN the user activates \"Agregar\" on a day THE SYSTEM SHALL open `/recordatorios/editar` with `fecha` set to that day.",
+      "WHEN axe runs on both calendar views THE SYSTEM SHALL report 0 violations."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/unit/calendar.test.ts",
+      "pnpm -C app test:e2e tests/e2e/calendar.spec.ts"
+    ],
+    "checkpoint": "step-29-calendario-f4",
+    "files": [
+      "app/src/server/calendar/calendar.ts",
+      "app/src/app/(app)/calendario/page.tsx",
+      "app/src/components/calendar/month-grid.tsx",
+      "app/tests/unit/calendar.test.ts",
+      "app/tests/e2e/calendar.spec.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E4-T6",
+    "title": "Registrar la bitácora diaria en menos de 15 segundos (F6)",
+    "epic": "04-dia-a-dia",
+    "dependencies": [
+      "E4-T1"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN a caregiver saves today's entry with day `regular`, moods `tranquila` and `con_dolor`, sleep `poco`, food `bien` and a note THE SYSTEM SHALL store one `journal_entries` row whose `note_enc` starts with `v1.` and return the decrypted note on read.",
+      "WHEN the caregiver saves again on the same local day THE SYSTEM SHALL update that same row.",
+      "WHEN a mood outside the allowed list is sent THE SYSTEM SHALL return `{ ok: false, error: { code: \"validation_failed\" } }`.",
+      "WHEN a `family` member reads the circle's entries THE SYSTEM SHALL return them, and WHEN a non-member reads THE SYSTEM SHALL return zero rows.",
+      "WHEN `tests/e2e/journal.spec.ts` records an entry THE SYSTEM SHALL need at most 5 taps before \"Guardar\" (H2: under 15 seconds), and the note field SHALL show the hint \"Puedes dictar con el micrófono del teclado\".",
+      "WHEN axe runs on `/bitacora` THE SYSTEM SHALL report 0 violations."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/journal.test.ts",
+      "pnpm -C app test:e2e tests/e2e/journal.spec.ts"
+    ],
+    "checkpoint": "step-30-bitacora-f6",
+    "files": [
+      "app/src/server/journal/journal.ts",
+      "app/src/app/(app)/bitacora/page.tsx",
+      "app/src/components/journal/journal-form.tsx",
+      "app/tests/db/journal.test.ts",
+      "app/tests/e2e/journal.spec.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E4-T7",
+    "title": "Cuidar a quien cuida: pregunta, respiro y recursos (F8)",
+    "epic": "04-dia-a-dia",
+    "dependencies": [
+      "E4-T1"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN the caregiver answers the daily check-in with score 4 THE SYSTEM SHALL store one `selfcare_checkins` row for today, and answering again the same day SHALL update it instead of adding another.",
+      "WHEN the last 3 consecutive days have scores of 2 or less THE SYSTEM SHALL return `lowStreak: true`, and `/para-ti` SHALL show the message \"Han sido días pesados. No tienes que poder con todo.\" without the words `diagnóstico` or `depresión`.",
+      "WHEN a `family` member of the same circle selects `selfcare_checkins` THE SYSTEM SHALL return zero rows.",
+      "WHEN \"Necesito un respiro\" is activated THE SYSTEM SHALL open a dialog with a pause exercise and the verified resources, operable with the keyboard alone.",
+      "WHEN `/para-ti` lists resources THE SYSTEM SHALL show only resources with `verified_at` set, each with its source link and check date.",
+      "WHEN axe runs on `/para-ti` THE SYSTEM SHALL report 0 violations."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/selfcare.test.ts",
+      "pnpm -C app test:e2e tests/e2e/selfcare.spec.ts"
+    ],
+    "checkpoint": "step-31-para-ti-f8",
+    "files": [
+      "app/src/server/selfcare/selfcare.ts",
+      "app/src/app/(app)/para-ti/page.tsx",
+      "app/src/components/selfcare/respiro-dialog.tsx",
+      "app/tests/db/selfcare.test.ts",
+      "app/tests/e2e/selfcare.spec.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E4-T8",
+    "title": "Ver consentimientos y descargar todos mis datos (F13)",
+    "epic": "04-dia-a-dia",
+    "dependencies": [
+      "E4-T6",
+      "E4-T7"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN an authenticated user requests `GET /api/cuenta/exportar?formato=json` THE SYSTEM SHALL answer `application/json` with `content-disposition: attachment` containing the profile, consents, circles, reminders with decrypted medication names, occurrences, journal entries with decrypted notes, self-care check-ins, tasks and contacts of that user.",
+      "WHEN `formato=csv&tabla=bitacora` is requested THE SYSTEM SHALL answer `text/csv; charset=utf-8` with a header row and one row per journal entry.",
+      "WHEN the export is requested without a session THE SYSTEM SHALL answer 401.",
+      "WHEN user A exports THE SYSTEM SHALL include no row from circles where A is not a member."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/account-export.test.ts"
+    ],
+    "checkpoint": "step-32-cuenta-datos",
+    "files": [
+      "app/src/server/account/export.ts",
+      "app/src/app/api/cuenta/exportar/route.ts",
+      "app/src/app/(app)/cuenta/page.tsx",
+      "app/tests/db/account-export.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E4-T9",
+    "title": "Borrar la cuenta con gracia de 7 días y cerrar círculo",
+    "epic": "04-dia-a-dia",
+    "dependencies": [
+      "E4-T8"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `requestDeletion` runs THE SYSTEM SHALL set `deletion_requested_at` and `deactivated_at`, the user's refresh token SHALL stop working, and `materializeOccurrences` SHALL create nothing more for that user's circles.",
+      "WHEN `getAccountState` runs for that user within 7 days THE SYSTEM SHALL return `status: \"pending_deletion\"` with `purgeAfter` 7 days after the request, and `restoreAccount` SHALL clear both fields.",
+      "WHEN `closeCircle` runs with reason `fallecimiento` THE SYSTEM SHALL set `closed_at`, set `active = false` on every reminder of the circle and mark its `pending` and `snoozed` occurrences `skipped`.",
+      "WHEN a `family` member calls `closeCircle` THE SYSTEM SHALL return `{ ok: false, error: { code: \"forbidden\" } }`."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/account-lifecycle.test.ts"
+    ],
+    "checkpoint": "step-33-cuenta-borrado",
+    "files": [
+      "app/src/server/account/lifecycle.ts",
+      "app/src/components/account/restore-account.tsx",
+      "app/src/app/(app)/layout.tsx",
+      "app/src/app/(app)/cuenta/page.tsx",
+      "app/tests/db/account-lifecycle.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E5-T1",
+    "title": "Calcular resúmenes, avances e hitos (F7)",
+    "epic": "05-informes-y-escucha",
+    "dependencies": [
+      "E4-T9"
+    ],
+    "priority": "p1",
+    "acceptance": [
+      "WHEN `summarize` receives a week with 10 medication occurrences of which 9 are `done` THE SYSTEM SHALL report `medication.rate = 0.9` and the sentence \"Esta semana se cumplió el 90 % de los medicamentos.\".",
+      "WHEN the week has 3 journal entries rated `dificil` THE SYSTEM SHALL produce \"Hubo 3 días difíciles.\" and no sentence SHALL contain `diagnóstico`, `deterioro`, `empeora` or `síntoma`.",
+      "WHEN `summarize` runs with audience `family` THE SYSTEM SHALL omit every self-care value.",
+      "WHEN `milestones` receives 30 consecutive days where every medication occurrence is `done` THE SYSTEM SHALL return `medicamentos_30_dias`, and for a first activity 30 days ago SHALL return `un_mes_con_sole`."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/unit/reports.test.ts"
+    ],
+    "checkpoint": "step-34-informes-f7",
+    "files": [
+      "app/src/server/reports/summary.ts",
+      "app/src/server/reports/milestones.ts",
+      "app/tests/unit/reports.test.ts",
+      "app/src/app/(app)/informes/page.tsx",
+      "app/src/components/reports/compliance-chart.tsx"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E5-T2",
+    "title": "Compartir un informe como imagen o PDF desde el navegador",
+    "epic": "05-informes-y-escucha",
+    "dependencies": [
+      "E5-T1"
+    ],
+    "priority": "p1",
+    "acceptance": [
+      "WHEN a user with a week of data opens `/informes?periodo=semana` THE SYSTEM SHALL show the medication compliance sentence and a chart whose values also appear in an HTML table.",
+      "WHEN the user activates \"Compartir\" THE SYSTEM SHALL first show \"Lo que compartes sale de Sole y queda bajo tu responsabilidad.\" with \"Compartir igual\" and \"Cancelar\".",
+      "WHEN \"Compartir igual\" is chosen in a browser without `navigator.share` THE SYSTEM SHALL download a file whose name matches `sole-informe-semana-YYYY-MM-DD.png`.",
+      "WHEN `/informes/imprimir?periodo=mes` is opened THE SYSTEM SHALL render the button \"Imprimir o guardar como PDF\" and a stylesheet containing `@media print`.",
+      "WHEN axe runs on `/informes` and `/informes/imprimir` THE SYSTEM SHALL report 0 violations."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test:e2e tests/e2e/reports.spec.ts"
+    ],
+    "checkpoint": "step-35-compartir-informe",
+    "files": [
+      "app/src/components/reports/share-report.tsx",
+      "app/src/app/(app)/informes/imprimir/page.tsx",
+      "app/tests/e2e/reports.spec.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E5-T3",
+    "title": "Poner el botón permanente \"Contarle algo a Sole\" (F10)",
+    "epic": "05-informes-y-escucha",
+    "dependencies": [
+      "E4-T9"
+    ],
+    "priority": "p1",
+    "acceptance": [
+      "WHEN a user sends \"La letra se ve chica\" as kind `problema` from screen `/hoy` THE SYSTEM SHALL store one `feedback` row with that text, kind and screen.",
+      "WHEN the message is empty or longer than 2000 characters THE SYSTEM SHALL return `{ ok: false, error: { code: \"validation_failed\" } }`.",
+      "WHEN a user sends an 11th message within one hour THE SYSTEM SHALL return `{ ok: false, error: { code: \"rate_limited\" } }`.",
+      "WHEN a non-admin user selects from `feedback` THE SYSTEM SHALL return zero rows, including their own messages."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/feedback.test.ts"
+    ],
+    "checkpoint": "step-36-comentarios-f10",
+    "files": [
+      "app/src/server/feedback/feedback.ts",
+      "app/src/server/feedback/actions.ts",
+      "app/src/components/feedback/feedback-button.tsx",
+      "app/src/app/(app)/layout.tsx",
+      "app/tests/db/feedback.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E5-T4",
+    "title": "Mostrar las microencuestas de los días 3, 14, 28 y 56",
+    "epic": "05-informes-y-escucha",
+    "dependencies": [
+      "E5-T3"
+    ],
+    "priority": "p1",
+    "acceptance": [
+      "WHEN `dueSurvey` runs for a user registered 3 days ago with no answers THE SYSTEM SHALL return `d3`, and for a user registered 2 days ago SHALL return null.",
+      "WHEN a user registered 30 days ago has answered `d3` and `d14` THE SYSTEM SHALL return `d28`, whose question is \"¿Cómo te sentirías si Sole dejara de existir?\" with the options \"Muy decepcionada\", \"Algo decepcionada\" and \"No me importaría\".",
+      "WHEN a survey is answered or dismissed THE SYSTEM SHALL store one `survey_responses` row and not offer that survey again.",
+      "WHEN the e2e user opens `/hoy` THE SYSTEM SHALL show the button \"Contarle algo a Sole\", and sending a comment SHALL show \"Gracias. Recibimos tu mensaje.\" in an `aria-live` region.",
+      "WHEN a user registered 3 days ago opens `/hoy` THE SYSTEM SHALL show the day-3 survey card."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/surveys.test.ts",
+      "pnpm -C app test:e2e tests/e2e/feedback.spec.ts"
+    ],
+    "checkpoint": "step-37-microencuestas",
+    "files": [
+      "app/src/server/surveys/surveys.ts",
+      "app/src/components/feedback/survey-card.tsx",
+      "app/src/app/(app)/hoy/page.tsx",
+      "app/tests/db/surveys.test.ts",
+      "app/tests/e2e/feedback.spec.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E5-T5",
+    "title": "Medir interés con puertas falsas honestas (F11)",
+    "epic": "05-informes-y-escucha",
+    "dependencies": [
+      "E4-T9"
+    ],
+    "priority": "p1",
+    "acceptance": [
+      "WHEN `/pronto/ia` is opened THE SYSTEM SHALL show \"Esto todavía no existe. ¿Quieres que te avisemos cuando esté?\".",
+      "WHEN the user activates \"Sí, avísame\" THE SYSTEM SHALL store one `fake_door_interest` row with `door_key = 'ia'` and `notify_me = true` and confirm it on screen.",
+      "WHEN `/pronto/plan-familiar` is opened THE SYSTEM SHALL show \"$2.990\", \"$4.990\" and \"$7.990\" with \"Precio de prueba: hoy no se cobra nada\", and choosing one SHALL store it in `choice`.",
+      "WHEN `/pronto/no-existe` is opened THE SYSTEM SHALL answer 404.",
+      "WHEN `visibleDoors(false)` and `visibleDoors(true)` run THE SYSTEM SHALL include `invitar-familiar` in the first result and exclude it from the second, whatever the current value of `FAMILY_ENABLED`.",
+      "WHEN axe runs on `/pronto` and `/pronto/plan-familiar` THE SYSTEM SHALL report 0 violations."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/fake-doors.test.ts",
+      "pnpm -C app test:e2e tests/e2e/fake-doors.spec.ts"
+    ],
+    "checkpoint": "step-38-puertas-falsas-f11",
+    "files": [
+      "app/src/server/fake-doors/doors.ts",
+      "app/src/app/(app)/pronto/page.tsx",
+      "app/src/app/(app)/pronto/[puerta]/page.tsx",
+      "app/tests/db/fake-doors.test.ts",
+      "app/tests/e2e/fake-doors.spec.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E5-T6",
+    "title": "Proteger el panel de administración con rol y MFA",
+    "epic": "05-informes-y-escucha",
+    "dependencies": [
+      "E4-T9"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN a non-admin user calls `requireAdmin` THE SYSTEM SHALL return `{ ok: false, reason: \"not_admin\" }`.",
+      "WHEN an admin with an `aal1` session calls `requireAdmin` THE SYSTEM SHALL return `{ ok: false, reason: \"mfa_required\" }`, and an insert into `tips` with that session SHALL be rejected with `42501`.",
+      "WHEN the admin enrolls TOTP and verifies a code generated by `tests/support/totp.ts` THE SYSTEM SHALL issue an `aal2` session with which `requireAdmin` returns `ok: true` and an insert into `tips` succeeds.",
+      "WHEN `logAdminAccess` runs with an `aal2` admin session THE SYSTEM SHALL append one `admin_audit_log` row with that admin's id and action.",
+      "WHEN any authenticated user updates their own `profiles.is_admin` THE SYSTEM SHALL reject it with `42501`."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/admin-access.test.ts"
+    ],
+    "checkpoint": "step-39-admin-acceso",
+    "files": [
+      "app/src/server/admin/guard.ts",
+      "app/src/app/admin/layout.tsx",
+      "app/src/app/admin/mfa/page.tsx",
+      "app/tests/support/totp.ts",
+      "app/tests/db/admin-access.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E5-T7",
+    "title": "Mostrar las métricas de las hipótesis H1–H6 (F15)",
+    "epic": "05-informes-y-escucha",
+    "dependencies": [
+      "E5-T6",
+      "E5-T4",
+      "E5-T5"
+    ],
+    "priority": "p1",
+    "acceptance": [
+      "WHEN `computeMetrics` receives events for 2 users active on 5 and on 3 distinct days of one week THE SYSTEM SHALL report `h1.avgActiveDaysPerWeek = 4`.",
+      "WHEN it receives `flow.completed` durations of 10000, 12000 and 20000 ms for flow `journal` THE SYSTEM SHALL report a median of 12000 for that flow.",
+      "WHEN it receives `d28` answers \"Muy decepcionada\" twice and \"Algo decepcionada\" three times THE SYSTEM SHALL report a share of 0.4 for \"Muy decepcionada\".",
+      "WHEN it is filtered by `org = DEMO-LOCAL` THE SYSTEM SHALL count only events whose `org_code` is `DEMO-LOCAL`.",
+      "WHEN `loadMetricRows` runs with a non-admin session THE SYSTEM SHALL read zero events."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/admin-metrics.test.ts"
+    ],
+    "checkpoint": "step-40-admin-metricas",
+    "files": [
+      "app/src/server/admin/metrics.ts",
+      "app/src/app/admin/page.tsx",
+      "app/src/components/admin/metric-chart.tsx",
+      "app/tests/db/admin-metrics.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E5-T8",
+    "title": "Gestionar organizaciones, contenido y comentarios (F15)",
+    "epic": "05-informes-y-escucha",
+    "dependencies": [
+      "E5-T7",
+      "E4-T7"
+    ],
+    "priority": "p1",
+    "acceptance": [
+      "WHEN an `aal2` admin creates the organization \"Fundación Prueba\" with code `FUND-PRUEBA` THE SYSTEM SHALL list it with the link `<APP_URL>/?org=FUND-PRUEBA`.",
+      "WHEN the admin edits a tip's text and saves THE SYSTEM SHALL show the new text in the list.",
+      "WHEN the admin marks a resource as verified with a check date THE SYSTEM SHALL set `verified_at`, and that resource SHALL then appear on `/para-ti`.",
+      "WHEN the admin opens `/admin/comentarios` THE SYSTEM SHALL list feedback newest first and show the count of `app.error` events of the last 7 days with a link to Sentry.",
+      "WHEN a user marked as admin opens `/admin` without TOTP THE SYSTEM SHALL send them to `/admin/mfa`, and only after a valid code SHALL `/admin` load."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test:e2e tests/e2e/admin.spec.ts"
+    ],
+    "checkpoint": "step-41-admin-gestion",
+    "files": [
+      "app/src/server/admin/content.ts",
+      "app/src/app/admin/organizaciones/page.tsx",
+      "app/src/app/admin/contenido/page.tsx",
+      "app/src/app/admin/comentarios/page.tsx",
+      "app/tests/e2e/admin.spec.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E5-T9",
+    "title": "Exportar datos seudónimos y vigilar los límites gratuitos",
+    "epic": "05-informes-y-escucha",
+    "dependencies": [
+      "E5-T6"
+    ],
+    "priority": "p1",
+    "acceptance": [
+      "WHEN an `aal2` admin requests `GET /api/admin/export` THE SYSTEM SHALL answer CSV whose header is exactly `pseudonym_id,name,props,org_code,created_at` with no user id or email in any row.",
+      "WHEN a non-admin or an `aal1` admin requests it THE SYSTEM SHALL answer 404.",
+      "WHEN `usageSnapshot` runs THE SYSTEM SHALL return database size in MB, monthly active users, push subscriptions and monthly events, each next to its limit from `FREE_LIMITS`, with `warning: true` at 80 % or more.",
+      "WHEN the export succeeds THE SYSTEM SHALL append an `admin_audit_log` row with action `export`."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/admin-export.test.ts"
+    ],
+    "checkpoint": "step-42-admin-export-limites",
+    "files": [
+      "app/src/server/admin/limits.ts",
+      "app/src/app/api/admin/export/route.ts",
+      "app/src/app/admin/limites/page.tsx",
+      "app/tests/db/admin-export.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E6-T1",
+    "title": "Aplicar CSP con nonce y cabeceras de seguridad",
+    "epic": "06-seguridad-y-calidad",
+    "dependencies": [
+      "E5-T8"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `buildCsp(\"abc\", { dev: false })` runs THE SYSTEM SHALL return a policy containing `default-src 'self'`, `script-src 'self' 'nonce-abc' 'strict-dynamic' https://challenges.cloudflare.com`, `frame-ancestors 'none'`, `object-src 'none'` and `base-uri 'self'`, and not containing `unsafe-eval`.",
+      "WHEN the production build serves `/entrar` THE SYSTEM SHALL send `content-security-policy` with a nonce, `strict-transport-security: max-age=63072000; includeSubDomains; preload`, `x-content-type-options: nosniff`, `referrer-policy: strict-origin-when-cross-origin`, `permissions-policy: camera=(), microphone=(), geolocation=()` and `x-frame-options: DENY`.",
+      "WHEN `/entrar` is requested twice THE SYSTEM SHALL return two different nonces.",
+      "WHEN `/`, `/entrar` and `/hoy` render in the browser THE SYSTEM SHALL log no CSP violation in the console.",
+      "WHEN `/api/health` is requested with `Origin: https://evil.example` THE SYSTEM SHALL not send `access-control-allow-origin`."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/unit/security-headers.test.ts",
+      "pnpm -C app test:e2e tests/e2e/security-headers.spec.ts"
+    ],
+    "checkpoint": "step-43-cabeceras-csp",
+    "files": [
+      "app/src/lib/security/headers.ts",
+      "app/src/proxy.ts",
+      "app/next.config.ts",
+      "app/tests/unit/security-headers.test.ts",
+      "app/tests/e2e/security-headers.spec.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E6-T2",
+    "title": "Capturar errores en Sentry con datos personales filtrados",
+    "epic": "06-seguridad-y-calidad",
+    "dependencies": [
+      "E6-T1"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `scrubEvent` receives an event with `user.email`, `user.ip_address`, `request.cookies`, `request.data`, a breadcrumb message containing `ana@example.cl` and `+56 9 1234 5678`, and a URL with `token_hash=abc` THE SYSTEM SHALL return it with no email, IP, cookies or request data, with both values in the message replaced by `[filtrado]` and the URL showing `token_hash=[filtrado]`.",
+      "WHEN `buildSentryOptions(\"\")` runs THE SYSTEM SHALL return `enabled: false`, and with a DSN SHALL return `enabled: true` and `sendDefaultPii: false`.",
+      "WHEN `pnpm -C app build` runs without `SENTRY_AUTH_TOKEN` THE SYSTEM SHALL exit 0 and leave no `.map` file under `app/.next/static`."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/unit/scrub.test.ts",
+      "pnpm -C app build",
+      "test -d app/.next/static",
+      "test -z \"$(find app/.next/static -name '*.map' -print -quit)\""
+    ],
+    "checkpoint": "step-44-sentry",
+    "files": [
+      "app/src/lib/observability/scrub.ts",
+      "app/src/instrumentation.ts",
+      "app/src/instrumentation-client.ts",
+      "app/next.config.ts",
+      "app/tests/unit/scrub.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E6-T3",
+    "title": "Dejar producción limpia y sin secretos en el bundle",
+    "epic": "06-seguridad-y-calidad",
+    "dependencies": [
+      "E6-T2"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `tests/unit/production-hygiene.test.tsx` scans `src/` THE SYSTEM SHALL find no `console.log`, no `dangerouslySetInnerHTML`, no `eval(`, no route folder named `debug`, `test` or `dev` under `src/app`, and no `NEXT_PUBLIC_` variable other than `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `NEXT_PUBLIC_SENTRY_DSN`.",
+      "WHEN the same test renders `error.tsx` with an error whose message is \"detalle interno\" THE SYSTEM SHALL show \"Algo salió mal. Ya nos llegó el aviso.\" and not the text \"detalle interno\".",
+      "WHEN `scripts/check-bundle-secrets.ts` runs after `pnpm -C app build` THE SYSTEM SHALL find none of the values of `SUPABASE_SECRET_KEY`, `FIELD_ENCRYPTION_KEY`, `CRON_SECRET`, `VAPID_PRIVATE_KEY` and `IP_HASH_SECRET` under `.next/static` and exit 0."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/unit/production-hygiene.test.tsx",
+      "pnpm -C app build",
+      "pnpm -C app exec tsx scripts/check-bundle-secrets.ts"
+    ],
+    "checkpoint": "step-45-produccion-limpia",
+    "files": [
+      "app/src/app/error.tsx",
+      "app/src/app/global-error.tsx",
+      "app/src/app/not-found.tsx",
+      "app/tests/unit/production-hygiene.test.tsx",
+      "app/scripts/check-bundle-secrets.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E6-T4",
+    "title": "Probar accesibilidad, teclado y el día completo P1",
+    "epic": "06-seguridad-y-calidad",
+    "dependencies": [
+      "E6-T3"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `tests/e2e/a11y.spec.ts` visits every page in its list in light and in dark color schemes THE SYSTEM SHALL report 0 axe violations for the tags wcag2a, wcag2aa, wcag21a, wcag21aa and wcag22aa.",
+      "WHEN `tests/e2e/keyboard.spec.ts` presses Tab from the top of `/hoy` THE SYSTEM SHALL first focus the link \"Saltar al contenido\" and then reach the \"Hecho\" button of the first item, with a computed `outline-style` other than `none` on the focused element.",
+      "WHEN the reminder form is completed with the keyboard alone THE SYSTEM SHALL create the reminder.",
+      "WHEN `tests/e2e/p1-flows.spec.ts` opens `/hoy`, `/recordatorios/editar` and `/bitacora` at a 320 px wide viewport THE SYSTEM SHALL have `document.documentElement.scrollWidth` no greater than 320.",
+      "WHEN the full P1 day runs (create a reminder, see it on `/hoy`, mark it done, write the journal, answer the check-in, open the weekly report) THE SYSTEM SHALL show the item as done on `/hoy` and counted on `/informes?periodo=semana`."
+    ],
+    "verify": [
+      "pnpm -C app test:e2e tests/e2e/a11y.spec.ts",
+      "pnpm -C app test:e2e tests/e2e/keyboard.spec.ts",
+      "pnpm -C app test:e2e tests/e2e/p1-flows.spec.ts"
+    ],
+    "checkpoint": "step-46-e2e-p1-accesibilidad",
+    "files": [
+      "app/tests/e2e/a11y.spec.ts",
+      "app/tests/e2e/keyboard.spec.ts",
+      "app/tests/e2e/p1-flows.spec.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E6-T5",
+    "title": "Documentar la evidencia de la lista de seguridad (6.2)",
+    "epic": "06-seguridad-y-calidad",
+    "dependencies": [
+      "E6-T4"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `tests/unit/docs-seguridad.test.ts` reads `docs/seguridad/checklist-6.2.md` THE SYSTEM SHALL find each item number from 1 to 30 exactly once, each with a non-empty `Evidencia` cell that names an existing repository path or starts with \"Lista de lanzamiento:\".",
+      "WHEN it reads `docs/seguridad/asvs-checklist.md` THE SYSTEM SHALL find every row's status in `Cumple`, `No aplica` or `Pendiente`, and every `Cumple` row with non-empty evidence.",
+      "WHEN it reads `docs/seguridad/owasp-top10.md` THE SYSTEM SHALL find the headings `## A01` to `## A10`, each followed by at least one existing repository path.",
+      "WHEN it reads `docs/seguridad/iso27001-anexo-a.md` THE SYSTEM SHALL find the header `| Control | Aplica | Cómo se cumple | Evidencia |` and at least one data row."
+    ],
+    "verify": [
+      "pnpm -C app test tests/unit/docs-seguridad.test.ts"
+    ],
+    "checkpoint": "step-47-evidencia-seguridad",
+    "files": [
+      "docs/seguridad/checklist-6.2.md",
+      "docs/seguridad/asvs-checklist.md",
+      "docs/seguridad/owasp-top10.md",
+      "docs/seguridad/iso27001-anexo-a.md",
+      "app/tests/unit/docs-seguridad.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E6-T6",
+    "title": "Escribir el modelo de amenazas y la privacidad",
+    "epic": "06-seguridad-y-calidad",
+    "dependencies": [
+      "E6-T5"
+    ],
+    "priority": "p1",
+    "acceptance": [
+      "WHEN `tests/unit/docs-seguridad.test.ts` reads `docs/seguridad/modelo-amenazas.md` THE SYSTEM SHALL find rows for the assets sesiones, bitácora, medicamentos, enlace de la persona cuidada, botón de emergencia, cron, panel de administración and respaldos.",
+      "WHEN it reads `docs/seguridad/plan-incidentes.md` THE SYSTEM SHALL find the headings `## Detección`, `## Contención`, `## Notificación`, `## Recuperación` and `## Lecciones`.",
+      "WHEN it reads `docs/legal/registro-actividades.md` THE SYSTEM SHALL find Supabase, Vercel, Sentry, Resend and Cloudflare as recipients and the words \"transferencia internacional\".",
+      "WHEN it reads `docs/legal/eipd.md` THE SYSTEM SHALL find the header `| Riesgo | Probabilidad | Impacto | Medida |`."
+    ],
+    "verify": [
+      "pnpm -C app test tests/unit/docs-seguridad.test.ts"
+    ],
+    "checkpoint": "step-48-amenazas-y-privacidad",
+    "files": [
+      "docs/seguridad/modelo-amenazas.md",
+      "docs/seguridad/plan-incidentes.md",
+      "docs/legal/registro-actividades.md",
+      "docs/legal/eipd.md",
+      "app/tests/unit/docs-seguridad.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E7-T1",
+    "title": "Borrar cuentas vencidas y avisar inactividad cada día",
+    "epic": "07-despliegue",
+    "dependencies": [
+      "E4-T9",
+      "E3-T5"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `runDaily` runs 8 days after a deletion request THE SYSTEM SHALL remove the auth user and every row of that user in `profiles`, `circles`, `reminders`, `reminder_occurrences`, `journal_entries`, `selfcare_checkins`, `push_subscriptions` and `events`.",
+      "WHEN it runs 6 days after the request THE SYSTEM SHALL delete nothing for that user.",
+      "WHEN a user has been inactive for 11 months THE SYSTEM SHALL send one notice through the injected mailer with the subject \"Tu cuenta de Sole se borrará en 30 días\" and set `inactivity_notice_sent_at`, and a second run SHALL send no other notice.",
+      "WHEN a user has been inactive for 12 months and was notified at least 30 days earlier THE SYSTEM SHALL purge the account, and without a prior notice SHALL not.",
+      "WHEN `POST /api/cron/daily` arrives without the correct `x-cron-secret` THE SYSTEM SHALL return 401."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/daily-jobs.test.ts"
+    ],
+    "checkpoint": "step-49-trabajos-diarios",
+    "files": [
+      "app/src/server/email/resend.ts",
+      "app/src/server/jobs/daily.ts",
+      "app/src/app/api/cron/daily/route.ts",
+      "app/tests/db/daily-jobs.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E7-T2",
+    "title": "Preparar Vercel y la salud con base de datos",
+    "epic": "07-despliegue",
+    "dependencies": [
+      "E7-T1",
+      "E6-T4"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `tests/unit/deploy-config.test.ts` reads `app/vercel.json` THE SYSTEM SHALL find `regions` equal to `[\"gru1\"]`, `buildCommand` equal to `pnpm build` and an `ignoreCommand` that compares `VERCEL_GIT_COMMIT_REF` with `main`.",
+      "WHEN the test calls the default exports of `robots.ts` and `sitemap.ts` THE SYSTEM SHALL return a robots rule that allows only `/$` and disallows `/`, and a sitemap with only the home URL built from `APP_URL`.",
+      "WHEN `GET /api/health` runs with the local database up THE SYSTEM SHALL return 200 with `data.db = \"ok\"`, and with `SUPABASE_URL` pointing to `http://127.0.0.1:9` SHALL return 503 with code `db_unavailable`."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/unit/deploy-config.test.ts",
+      "pnpm -C app test tests/unit/env-health.test.ts"
+    ],
+    "checkpoint": "step-50-vercel-config",
+    "files": [
+      "app/vercel.json",
+      "app/src/app/robots.ts",
+      "app/src/app/sitemap.ts",
+      "app/src/app/api/health/route.ts",
+      "app/tests/unit/deploy-config.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E7-T3",
+    "title": "Programar respaldos cifrados, keep-alive y escaneos",
+    "epic": "07-despliegue",
+    "dependencies": [
+      "E7-T2",
+      "E1-T3"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `tests/unit/workflows.test.ts` reads `.github/workflows/backup.yml` THE SYSTEM SHALL find a daily `schedule`, `supabase@2.122.1 db dump` for schema, data and roles, encryption with `age -r` before the upload step, `retention-days: 7`, and no upload of a `.sql` or unencrypted `.tgz` file.",
+      "WHEN it reads `.github/workflows/keepalive.yml` THE SYSTEM SHALL find a daily `schedule` requesting `https://app.solecuida.com/api/health`.",
+      "WHEN it reads `.github/workflows/codeql.yml` and `.github/workflows/zap.yml` THE SYSTEM SHALL find CodeQL for `javascript-typescript` and the ZAP baseline action targeting `https://app.solecuida.com` on `workflow_dispatch`.",
+      "WHEN it scans every file in `.github/workflows` THE SYSTEM SHALL find secrets only as `secrets.` references and every `uses:` pinned to a version tag or commit SHA."
+    ],
+    "verify": [
+      "pnpm -C app test tests/unit/workflows.test.ts"
+    ],
+    "checkpoint": "step-51-respaldos-keepalive",
+    "files": [
+      ".github/workflows/backup.yml",
+      ".github/workflows/keepalive.yml",
+      ".github/workflows/codeql.yml",
+      ".github/workflows/zap.yml",
+      "app/tests/unit/workflows.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E7-T4",
+    "title": "Escribir el manual del fundador y rotar la clave de cifrado",
+    "epic": "07-despliegue",
+    "dependencies": [
+      "E7-T3"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `rotateAll` runs after `FIELD_ENCRYPTION_KEY` moves to version 2 with the old key in `FIELD_ENCRYPTION_KEY_PREVIOUS` THE SYSTEM SHALL rewrite every `v1.` value in `reminders`, `journal_entries` and `contacts` as `v2.`, and each value SHALL decrypt to its original text.",
+      "WHEN it runs with `dryRun: true` THE SYSTEM SHALL report the counts and change no row.",
+      "WHEN `tests/unit/docs-mantenimiento.test.ts` reads `docs/mantenimiento.md` THE SYSTEM SHALL find the headings `## Desplegar`, `## Respaldar y restaurar`, `## Simulacro de restauración`, `## Rotar claves`, `## Revisar errores`, `## Agregar una organización`, `## Dar acceso de admin`, `## Secretos en Vault` and `## Si Supabase pausa el proyecto`."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/rotate-field-key.test.ts",
+      "pnpm -C app test tests/unit/docs-mantenimiento.test.ts"
+    ],
+    "checkpoint": "step-52-manual-mantenimiento",
+    "files": [
+      "docs/mantenimiento.md",
+      "app/scripts/rotate-field-key.ts",
+      "app/tests/db/rotate-field-key.test.ts",
+      "app/tests/unit/docs-mantenimiento.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E7-T5",
+    "title": "Cerrar variables de entorno y la lista de lanzamiento",
+    "epic": "07-despliegue",
+    "dependencies": [
+      "E7-T4"
+    ],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `tests/unit/env-example.test.ts` scans the source for environment variable reads THE SYSTEM SHALL find every variable as a key in `app/.env.example`, except `NODE_ENV`, `CI` and `NEXT_RUNTIME`.",
+      "WHEN the same test reads `app/.env.example` THE SYSTEM SHALL find every value empty or local (`http://localhost`, `mailto:`).",
+      "WHEN `docs/lanzamiento.md` is read THE SYSTEM SHALL contain the headings `## Cuentas y dominios`, `## Variables en Vercel`, `## Supabase de producción`, `## Correo` and `## Antes de abrir al público`."
+    ],
+    "verify": [
+      "pnpm -C app test tests/unit/env-example.test.ts",
+      "grep -q \"## Cuentas y dominios\" docs/lanzamiento.md",
+      "grep -q \"## Variables en Vercel\" docs/lanzamiento.md",
+      "grep -q \"## Supabase de producción\" docs/lanzamiento.md",
+      "grep -q \"## Correo\" docs/lanzamiento.md",
+      "grep -q \"## Antes de abrir al público\" docs/lanzamiento.md"
+    ],
+    "checkpoint": "step-53-checklist-lanzamiento",
+    "files": [
+      "docs/lanzamiento.md",
+      "app/.env.example",
+      "app/tests/unit/env-example.test.ts",
+      "PENDIENTES.md"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E8-T1",
+    "title": "Agregar tareas sin fecha y pasarlas a hoy (F5)",
+    "epic": "08-ampliacion",
+    "dependencies": [
+      "E7-T5"
+    ],
+    "priority": "p1",
+    "acceptance": [
+      "WHEN a caregiver adds the task \"Comprar pañales\" THE SYSTEM SHALL list it under \"Sin fecha\".",
+      "WHEN `moveToToday` runs on it THE SYSTEM SHALL set `scheduled_for` to today in `America/Santiago`, and `getToday` SHALL include it in the `whenever` group.",
+      "WHEN the caregiver completes it THE SYSTEM SHALL set `done_at` and `done_by`.",
+      "WHEN a `family` member calls `addTask` THE SYSTEM SHALL return `{ ok: false, error: { code: \"forbidden\" } }`.",
+      "WHEN `helpLinkFor(taskId, false)` and `helpLinkFor(taskId, true)` run THE SYSTEM SHALL return `/pronto/invitar-familiar` and `/circulo?pedir=<taskId>` respectively."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/tasks.test.ts",
+      "pnpm -C app test tests/db/today.test.ts"
+    ],
+    "checkpoint": "step-54-tareas-f5",
+    "files": [
+      "app/src/server/tasks/tasks.ts",
+      "app/src/app/(app)/tareas/page.tsx",
+      "app/src/components/tasks/task-item.tsx",
+      "app/src/server/today/today.ts",
+      "app/tests/db/tasks.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E8-T2",
+    "title": "Guardar contactos importantes y el de emergencia (F9)",
+    "epic": "08-ampliacion",
+    "dependencies": [
+      "E7-T5"
+    ],
+    "priority": "p1",
+    "acceptance": [
+      "WHEN a caregiver adds \"Dra. Pérez\" with kind `medico` and phone `+56 2 2345 6789` THE SYSTEM SHALL list it with a link whose `href` is `tel:+56223456789`.",
+      "WHEN the phone contains letters THE SYSTEM SHALL return `{ ok: false, error: { code: \"validation_failed\" } }`.",
+      "WHEN two contacts are marked as emergency contacts THE SYSTEM SHALL have `emergencyContactFor` return the one updated most recently.",
+      "WHEN notes are saved THE SYSTEM SHALL store `notes_enc` starting with `v1.`, and the form SHALL contain no field labelled \"alergias\", \"diagnóstico\" or \"previsión\".",
+      "WHEN axe runs on `/contactos` THE SYSTEM SHALL report 0 violations."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/contacts.test.ts",
+      "pnpm -C app test:e2e tests/e2e/contacts.spec.ts"
+    ],
+    "checkpoint": "step-55-contactos-f9",
+    "files": [
+      "app/src/server/contacts/contacts.ts",
+      "app/src/app/(app)/contactos/page.tsx",
+      "app/src/components/contacts/contact-form.tsx",
+      "app/tests/db/contacts.test.ts",
+      "app/tests/e2e/contacts.spec.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E8-T3",
+    "title": "Crear y revocar el vínculo de la persona cuidada (F12)",
+    "epic": "08-ampliacion",
+    "dependencies": [
+      "E8-T2"
+    ],
+    "priority": "p1",
+    "acceptance": [
+      "WHEN a caregiver creates a link THE SYSTEM SHALL return a token of at least 43 base64url characters, store only its SHA-256 hex in `cared_links.token_hash`, and set `expires_at` 90 days ahead.",
+      "WHEN `visibleToday` runs for a valid link THE SYSTEM SHALL return only today's occurrences of reminders with `visible_to_cared = true`.",
+      "WHEN `POST /api/v/<token>/listo` marks a visible occurrence THE SYSTEM SHALL set it `done` with `done_via = 'cared_link'` and `done_by` null, and for an occurrence of a non-visible reminder SHALL answer 404 and change nothing.",
+      "WHEN the link is revoked or expired THE SYSTEM SHALL have `resolveLink` return null and answer 404 on `/api/v/<token>/listo`.",
+      "WHEN a `family` member calls `createLink` THE SYSTEM SHALL return `{ ok: false, error: { code: \"forbidden\" } }`."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/cared-link.test.ts"
+    ],
+    "checkpoint": "step-56-vinculo-persona-cuidada",
+    "files": [
+      "app/src/server/cared-link/links.ts",
+      "app/src/app/(app)/persona-cuidada/page.tsx",
+      "app/src/app/api/v/[token]/listo/route.ts",
+      "app/tests/db/cared-link.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E8-T4",
+    "title": "Registrar emergencias y avisar a la cuidadora (F12)",
+    "epic": "08-ampliacion",
+    "dependencies": [
+      "E8-T3"
+    ],
+    "priority": "p1",
+    "acceptance": [
+      "WHEN `triggerEmergency` runs for a valid link with a fake sender THE SYSTEM SHALL insert one `emergency_events` row, send a notification with `requireInteraction: true` and the title \"Emergencia: <nombre> pidió ayuda\" to every caregiver subscription, and return the emergency contact's phone or `131` when there is none.",
+      "WHEN it runs a 4th time within 10 minutes for the same link THE SYSTEM SHALL return `rate_limited` and insert no further row.",
+      "WHEN `POST /api/v/<token>/emergencia` arrives with an unknown token THE SYSTEM SHALL answer 404 and send nothing."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/emergency.test.ts"
+    ],
+    "checkpoint": "step-57-emergencia-servidor",
+    "files": [
+      "app/src/server/cared-link/emergency.ts",
+      "app/src/app/api/v/[token]/emergencia/route.ts",
+      "app/tests/db/emergency.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E8-T5",
+    "title": "Construir la vista grande de la persona cuidada (F12)",
+    "epic": "08-ampliacion",
+    "dependencies": [
+      "E8-T4"
+    ],
+    "priority": "p1",
+    "acceptance": [
+      "WHEN `/v/<token>` opens with a valid token THE SYSTEM SHALL list today's visible items, and activating \"Listo\" on one SHALL show it as done.",
+      "WHEN the emergency button is pressed THE SYSTEM SHALL first ask \"¿Quieres pedir ayuda ahora?\" with \"Sí, llamar\" and \"No\", and only \"Sí, llamar\" SHALL reveal a `tel:` link and record the alert.",
+      "WHEN `/v/<token>` renders THE SYSTEM SHALL show \"Sole no reemplaza a un servicio de emergencia y no puede garantizar que un aviso llegue.\" and each item title with a computed font size of at least 28 px.",
+      "WHEN `/v/<token>` opens with an unknown token THE SYSTEM SHALL answer 404.",
+      "WHEN axe runs on `/v/<token>` THE SYSTEM SHALL report 0 violations."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test:e2e tests/e2e/cared-view.spec.ts"
+    ],
+    "checkpoint": "step-58-vista-persona-cuidada",
+    "files": [
+      "app/src/app/v/[token]/page.tsx",
+      "app/src/components/cared/emergency-button.tsx",
+      "app/tests/e2e/cared-view.spec.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E8-T6",
+    "title": "Crear el informe para el médico, Premium en piloto (F14)",
+    "epic": "08-ampliacion",
+    "dependencies": [
+      "E5-T2",
+      "E7-T5"
+    ],
+    "priority": "p1",
+    "acceptance": [
+      "WHEN `buildDoctorReport` runs for a month THE SYSTEM SHALL return compliance per medication reminder, activities done, the journal summary by day rating and an empty section titled \"Preguntas de la familia para el control\".",
+      "WHEN it runs THE SYSTEM SHALL include no self-care value and none of the words `diagnóstico`, `deterioro`, `empeora` or `síntoma`.",
+      "WHEN `/informes/medico?mes=2027-03` opens THE SYSTEM SHALL show \"Premium · gratis durante el piloto\" and the button \"Imprimir o guardar como PDF\", and SHALL store one `premium.used` event with `feature = \"informe_medico\"` for a user with research consent.",
+      "WHEN `docs/negocio/planes.md` is read THE SYSTEM SHALL contain the headings `## Planes`, `## Precios de prueba`, `## Qué incluiría la versión con IA` and `## Cómo leer los datos de H4`.",
+      "WHEN axe runs on `/informes/medico` THE SYSTEM SHALL report 0 violations."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/unit/doctor-report.test.ts",
+      "pnpm -C app test:e2e tests/e2e/doctor-report.spec.ts",
+      "grep -q \"## Precios de prueba\" docs/negocio/planes.md",
+      "grep -q \"## Cómo leer los datos de H4\" docs/negocio/planes.md"
+    ],
+    "checkpoint": "step-59-informe-medico-f14",
+    "files": [
+      "app/src/server/reports/doctor-report.ts",
+      "app/src/app/(app)/informes/medico/page.tsx",
+      "app/tests/unit/doctor-report.test.ts",
+      "app/tests/e2e/doctor-report.spec.ts",
+      "docs/negocio/planes.md"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E9-T1",
+    "title": "Preparar la web: CTA fija, compartir, favicon y pruebas",
+    "epic": "09-fuera-de-la-app",
+    "dependencies": [
+      "E7-T5"
+    ],
+    "priority": "p1",
+    "acceptance": [
+      "WHEN `tests/unit/web-site.test.ts` runs THE SYSTEM SHALL find a unique `<title>` on every page of `web/`, a unique meta description on every page except `404.html`, and exactly one `<h1>` per page whose text differs from the title.",
+      "WHEN it checks links THE SYSTEM SHALL resolve every internal `href` and `src` to a file under `web/`, except `/_vercel/insights/script.js` and `assets/retrato.jpg`.",
+      "WHEN it scans `web/` and `app/src` THE SYSTEM SHALL find no link to `wa.me`, `api.whatsapp.com` or `whatsapp:`, no \"en memoria\" and no `LocalBusiness`.",
+      "WHEN it reads `web/sitemap.xml` THE SYSTEM SHALL find every page except `404.html` and pages marked `noindex`, and every URL it lists SHALL exist under `web/`.",
+      "WHEN a page carries `data-pie=\"v2\"` THE SYSTEM SHALL find in it links to `privacidad.html`, `terminos.html` and `cookies.html` and `<link rel=\"icon\" href=\"/favicon.svg\">`."
+    ],
+    "verify": [
+      "pnpm -C app test tests/unit/web-site.test.ts"
+    ],
+    "checkpoint": "step-60-web-base",
+    "files": [
+      "web/assets/compartir.js",
+      "web/assets/estilo.css",
+      "web/favicon.svg",
+      "app/tests/unit/web-site.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E9-T2",
+    "title": "Publicar privacidad, términos, cookies y llms.txt",
+    "epic": "09-fuera-de-la-app",
+    "dependencies": [
+      "E9-T1"
+    ],
+    "priority": "p1",
+    "acceptance": [
+      "WHEN `tests/unit/web-site.test.ts` runs THE SYSTEM SHALL pass on `privacidad.html`, `terminos.html`, `cookies.html` and `404.html`, each carrying `data-pie=\"v2\"` with links to the three legal pages and the favicon.",
+      "WHEN `web/privacidad.html` is read THE SYSTEM SHALL name Supabase, Vercel, Sentry, Resend, Cloudflare and Zoho with what each receives and in which country.",
+      "WHEN `web/terminos.html` is read THE SYSTEM SHALL state that the service is free, that users must be 18 or older, and that \"Sole no reemplaza a un servicio de emergencia\".",
+      "WHEN `web/llms.txt` is read THE SYSTEM SHALL start with `# Sole` and contain the headings `## Qué es`, `## Para quién`, `## Cómo probarla`, `## Privacidad` and `## Contacto`."
+    ],
+    "verify": [
+      "pnpm -C app test tests/unit/web-site.test.ts",
+      "grep -q \"Sole no reemplaza a un servicio de emergencia\" web/terminos.html",
+      "grep -q \"Resend\" web/privacidad.html",
+      "grep -q \"## Cómo probarla\" web/llms.txt"
+    ],
+    "checkpoint": "step-61-web-legal",
+    "files": [
+      "web/privacidad.html",
+      "web/terminos.html",
+      "web/cookies.html",
+      "web/llms.txt",
+      "web/404.html"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E9-T3",
+    "title": "Cambiar el relato de la web y explicar cómo probar Sole",
+    "epic": "09-fuera-de-la-app",
+    "dependencies": [
+      "E9-T2"
+    ],
+    "priority": "p1",
+    "acceptance": [
+      "WHEN `tests/unit/web-site.test.ts` runs THE SYSTEM SHALL find JSON-LD `Organization` and `WebSite` in `index.html` and `FAQPage` in `probar.html`, and no `LocalBusiness` anywhere.",
+      "WHEN it checks images THE SYSTEM SHALL find `alt`, `width` and `height` on every `<img>` of `web/`, every `<img>` `src` ending in `.webp`, `.avif` or `.svg`, and no raster file in `web/` other than `assets/portada-social.png` larger than 200 KB.",
+      "WHEN it checks calls to action THE SYSTEM SHALL find at most one `.cta-principal` per page and exactly one on `index.html` and `probar.html`.",
+      "WHEN it reads `web/sitemap.xml` THE SYSTEM SHALL list `probar.html`, `terminos.html` and `cookies.html` along with the earlier pages."
+    ],
+    "verify": [
+      "pnpm -C app test tests/unit/web-site.test.ts"
+    ],
+    "checkpoint": "step-62-web-relato",
+    "files": [
+      "web/index.html",
+      "web/probar.html",
+      "web/organizaciones.html",
+      "web/sitemap.xml",
+      "app/tests/unit/web-site.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E9-T4",
+    "title": "Proteger el formulario de la web con Turnstile vía la app",
+    "epic": "09-fuera-de-la-app",
+    "dependencies": [
+      "E9-T3",
+      "E6-T1"
+    ],
+    "priority": "p1",
+    "acceptance": [
+      "WHEN `OPTIONS /api/web/contact` arrives from `https://solecuida.com` THE SYSTEM SHALL answer 204 with `access-control-allow-origin: https://solecuida.com`, and from `https://evil.example` SHALL answer 403 without that header.",
+      "WHEN a `POST` arrives with the honeypot filled THE SYSTEM SHALL answer 200 `{ ok: true }` and call neither Turnstile nor the insert.",
+      "WHEN `TURNSTILE_SECRET_KEY` is set and Turnstile rejects the token THE SYSTEM SHALL answer 400 with code `captcha_failed` and insert nothing.",
+      "WHEN Turnstile accepts THE SYSTEM SHALL insert one row into `contactos` at `WEB_CONTACT_SUPABASE_URL` and answer 200.",
+      "WHEN every page of `web/` is checked THE SYSTEM SHALL find `data-pie=\"v2\"` in all of them."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/unit/web-contact-route.test.ts",
+      "pnpm -C app test tests/unit/web-site.test.ts",
+      "test -f web/contacto.html",
+      "test -z \"$(grep -L 'data-pie=\"v2\"' web/*.html)\""
+    ],
+    "checkpoint": "step-63-web-contacto",
+    "files": [
+      "web/contacto.html",
+      "web/assets/formulario.js",
+      "web/assets/config.js",
+      "app/src/app/api/web/contact/route.ts",
+      "app/tests/unit/web-contact-route.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E9-T5",
+    "title": "Redactar las plantillas de correo para organizaciones",
+    "epic": "09-fuera-de-la-app",
+    "dependencies": [
+      "E9-T3"
+    ],
+    "priority": "p1",
+    "acceptance": [
+      "WHEN `pnpm -C app exec tsx scripts/check-alianzas.ts plantillas` runs THE SYSTEM SHALL exit 0 after finding `fundacion.md`, `municipio.md`, `centro-salud.md` and `agrupacion-cuidadoras.md`, each with the sections `## Versión breve`, `## Versión completa` and `## Seguimiento`, a `Asunto:` line per version and the marker `ENLACE_CON_CODIGO`.",
+      "WHEN any template contains \"mejora la salud\", \"reduce el estrés\" or \"previene\" THE SYSTEM SHALL make the script exit 1 naming the file."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app exec tsx scripts/check-alianzas.ts plantillas"
+    ],
+    "checkpoint": "step-64-alianzas-plantillas",
+    "files": [
+      "app/scripts/check-alianzas.ts",
+      "alianzas/plantillas/fundacion.md",
+      "alianzas/plantillas/municipio.md",
+      "alianzas/plantillas/centro-salud.md",
+      "alianzas/plantillas/agrupacion-cuidadoras.md"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E9-T6",
+    "title": "Armar la lista de organizaciones y el kit de piloto",
+    "epic": "09-fuera-de-la-app",
+    "dependencies": [
+      "E9-T5"
+    ],
+    "priority": "p1",
+    "acceptance": [
+      "WHEN `pnpm -C app exec tsx scripts/check-alianzas.ts todo` runs THE SYSTEM SHALL exit 0 after finding the five templates, the exact headers of `organizaciones.csv` and `seguimiento.csv`, at least 20 organization rows and the three headings of `kit-piloto.md`.",
+      "WHEN any `organizaciones.csv` row has a `tipo` outside the allowed list, a `fuente` not starting with `https://`, a malformed `fecha_consulta` or a contact at gmail, hotmail, yahoo or outlook THE SYSTEM SHALL make the script exit 1 naming the row.",
+      "WHEN `alianzas/pauta-entrevistas.md` is read THE SYSTEM SHALL mention `seguimiento-entrevistas.csv`."
+    ],
+    "verify": [
+      "pnpm -C app exec tsx scripts/check-alianzas.ts todo",
+      "grep -q \"seguimiento-entrevistas.csv\" alianzas/pauta-entrevistas.md"
+    ],
+    "checkpoint": "step-65-alianzas-kit",
+    "files": [
+      "alianzas/plantillas/asociacion-pacientes.md",
+      "alianzas/organizaciones.csv",
+      "alianzas/seguimiento.csv",
+      "alianzas/kit-piloto.md",
+      "alianzas/pauta-entrevistas.md"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E10-T1",
+    "title": "Invitar familiares al círculo por enlace (F16)",
+    "epic": "10-si-sobra-tiempo",
+    "dependencies": [
+      "E9-T6",
+      "E8-T6",
+      "E8-T5",
+      "E8-T1"
+    ],
+    "priority": "p2",
+    "acceptance": [
+      "WHEN a caregiver creates an invitation THE SYSTEM SHALL return a link `<APP_URL>/invitar/<token>` valid for 7 days and store only the token's SHA-256 hex.",
+      "WHEN a signed-in user with the required consents accepts it THE SYSTEM SHALL add them to the circle with role `family` and notify kinds `important_date`, `appointment` and `emergency`, and mark the invitation accepted.",
+      "WHEN the token is expired, revoked or already used THE SYSTEM SHALL refuse with `invitation_invalid`.",
+      "WHEN the same caregiver creates an 11th invitation within 24 hours THE SYSTEM SHALL return `rate_limited`.",
+      "WHEN `FAMILY_ENABLED` is true THE SYSTEM SHALL have `visibleDoors()` called without arguments exclude `invitar-familiar`."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/family-invitations.test.ts",
+      "pnpm -C app test tests/db/fake-doors.test.ts"
+    ],
+    "checkpoint": "step-66-familiares-invitaciones",
+    "files": [
+      "app/src/server/family/invitations.ts",
+      "app/src/app/(app)/circulo/page.tsx",
+      "app/src/app/invitar/[token]/page.tsx",
+      "app/src/server/fake-doors/doors.ts",
+      "app/tests/db/family-invitations.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E10-T2",
+    "title": "Dejar que el familiar verifique y tome tareas (F16)",
+    "epic": "10-si-sobra-tiempo",
+    "dependencies": [
+      "E10-T1"
+    ],
+    "priority": "p2",
+    "acceptance": [
+      "WHEN a family member marks an occurrence `done` THE SYSTEM SHALL store `done_by` as that member, and `getToday` for the caregiver SHALL return `verifiedBy` with the member's `display_name`.",
+      "WHEN a family member tries to update a reminder, a member's role or the circle's fields THE SYSTEM SHALL change nothing.",
+      "WHEN a family member claims a task THE SYSTEM SHALL set `claimed_by` to that member, and `listTasks` for the caregiver SHALL return `claimedByName` with the member's name.",
+      "WHEN a family member reads the circle's report through `summarize` with audience `family` THE SYSTEM SHALL get no self-care value, and selecting `selfcare_checkins` SHALL return zero rows."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/family-permissions.test.ts",
+      "pnpm -C app test tests/db/today.test.ts"
+    ],
+    "checkpoint": "step-67-familiares-permisos",
+    "files": [
+      "app/src/server/today/today.ts",
+      "app/src/components/today/occurrence-item.tsx",
+      "app/src/server/tasks/tasks.ts",
+      "app/tests/db/family-permissions.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E10-T3",
+    "title": "Mostrar la actividad del círculo y avisar a la familia (F16)",
+    "epic": "10-si-sobra-tiempo",
+    "dependencies": [
+      "E10-T2"
+    ],
+    "priority": "p2",
+    "acceptance": [
+      "WHEN `circleFeed` runs THE SYSTEM SHALL list marks with the name of who made them, claimed or closed tasks and milestones, newest first, with no self-care data.",
+      "WHEN a reminder of kind `appointment` fires THE SYSTEM SHALL notify family members whose `notify_kinds` include `appointment` and SHALL not notify a family member whose `notify_kinds` exclude it.",
+      "WHEN an emergency is triggered from the cared link THE SYSTEM SHALL notify every caregiver and every family member with `emergency` in `notify_kinds`.",
+      "WHEN a family member calls `set_member_notify_kinds` for another member THE SYSTEM SHALL reject it with `42501`, and the caregiver's call SHALL store the new kinds."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/family-notifications.test.ts",
+      "pnpm -C app test tests/db/dispatch.test.ts"
+    ],
+    "checkpoint": "step-68-familiares-actividad",
+    "files": [
+      "app/src/server/family/feed.ts",
+      "app/src/app/(app)/circulo/actividad/page.tsx",
+      "app/src/server/reminders/dispatch.ts",
+      "app/src/server/cared-link/emergency.ts",
+      "app/tests/db/family-notifications.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E10-T4",
+    "title": "Abrir el panel agregado para organizaciones (F17)",
+    "epic": "10-si-sobra-tiempo",
+    "dependencies": [
+      "E10-T3",
+      "E5-T8"
+    ],
+    "priority": "p2",
+    "acceptance": [
+      "WHEN an `aal2` admin generates a dashboard link THE SYSTEM SHALL store only the SHA-256 hex of the token in `organizations.dashboard_token_hash` and return the link once.",
+      "WHEN `orgDashboard` resolves a valid token THE SYSTEM SHALL return only aggregates for users whose `org_code` matches that organization.",
+      "WHEN a group has fewer than 5 users THE SYSTEM SHALL return \"Menos de 5 personas: no se muestra\" instead of the number.",
+      "WHEN the token is unknown THE SYSTEM SHALL return null and the page SHALL answer 404."
+    ],
+    "verify": [
+      "pnpm -C app lint",
+      "pnpm -C app typecheck",
+      "pnpm -C app test tests/db/org-dashboard.test.ts"
+    ],
+    "checkpoint": "step-69-panel-organizaciones-f17",
+    "files": [
+      "app/src/server/org/org-dashboard.ts",
+      "app/src/app/org/[token]/page.tsx",
+      "app/src/app/admin/organizaciones/page.tsx",
+      "app/tests/db/org-dashboard.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E10-T5",
+    "title": "Medir rendimiento y cerrar documentos de fase 8",
+    "epic": "10-si-sobra-tiempo",
+    "dependencies": [
+      "E10-T4"
+    ],
+    "priority": "p2",
+    "acceptance": [
+      "WHEN `tests/e2e/performance.spec.ts` loads `/hoy` on the `android-gama-media` project THE SYSTEM SHALL transfer less than 350 KB of compressed JavaScript and report a Largest Contentful Paint under 2500 ms against the local production build.",
+      "WHEN `docs/diseno/familiares.md` and `docs/diseno/admin-y-organizaciones.md` are read THE SYSTEM SHALL contain the heading `## Estado`.",
+      "WHEN `tests/unit/docs-diseno.test.ts` runs THE SYSTEM SHALL still pass."
+    ],
+    "verify": [
+      "pnpm -C app test:e2e tests/e2e/performance.spec.ts",
+      "grep -q \"## Estado\" docs/diseno/familiares.md",
+      "grep -q \"## Estado\" docs/diseno/admin-y-organizaciones.md",
+      "pnpm -C app test tests/unit/docs-diseno.test.ts"
+    ],
+    "checkpoint": "step-70-pulido-rendimiento",
+    "files": [
+      "app/tests/e2e/performance.spec.ts",
+      "PENDIENTES.md",
+      "DECISIONES.md",
+      "docs/diseno/familiares.md",
+      "docs/diseno/admin-y-organizaciones.md"
+    ],
+    "status": "pending"
+  }
+]
