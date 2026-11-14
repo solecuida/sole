@@ -146,7 +146,7 @@
       "app/src/components/ui/dialog.tsx",
       "app/tests/unit/ui-components.test.tsx"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E1-T6",
