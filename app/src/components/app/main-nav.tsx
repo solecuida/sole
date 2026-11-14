@@ -55,7 +55,7 @@ export function TopBar({ signOut }: { signOut: ReactNode }) {
   }, [pathname]);
 
   return (
-    <header className="border-b border-border bg-surface">
+    <header className="max-h-[75dvh] shrink-0 overflow-y-auto border-b border-border bg-surface">
       <div className="mx-auto flex max-w-content items-center justify-between px-4 py-2">
         <Link
           href="/hoy"
@@ -101,13 +101,29 @@ export function TopBar({ signOut }: { signOut: ReactNode }) {
   );
 }
 
-/** Accesos de todos los días, al alcance del pulgar. No es fija: no tapa el foco. */
+/**
+ * Zona central que se desplaza. La barra de arriba y los accesos de abajo quedan
+ * siempre a la vista SIN flotar sobre el contenido: así nada tapa un botón ni el
+ * elemento enfocado (WCAG 2.4.11 y 2.5.8). Al cambiar de pantalla vuelve arriba.
+ */
+export function MainArea({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  return (
+    <main key={pathname} id="contenido" className="flex-1 overflow-y-auto">
+      <div className="mx-auto flex w-full max-w-content flex-col gap-6 px-4 py-6">
+        {children}
+      </div>
+    </main>
+  );
+}
+
+/** Accesos de todos los días, al alcance del pulgar. */
 export function QuickNav() {
   const pathname = usePathname();
   return (
     <nav
       aria-label="Accesos rápidos"
-      className="sticky bottom-0 border-t border-border bg-surface"
+      className="shrink-0 border-t border-border bg-surface"
     >
       <ul className="mx-auto grid max-w-content grid-cols-4">
         {QUICK.map(({ href, label, icon: Icon }) => (

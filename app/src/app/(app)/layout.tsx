@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
-import { QuickNav, TopBar } from "@/components/app/main-nav";
+import { MainArea, QuickNav, TopBar } from "@/components/app/main-nav";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
@@ -39,7 +39,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="flex h-dvh flex-col overflow-hidden">
       <TopBar
         signOut={
           <form action={signOut}>
@@ -49,12 +49,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
           </form>
         }
       />
-      <main
-        id="contenido"
-        className="mx-auto flex w-full max-w-content flex-1 flex-col gap-6 px-4 py-6"
-      >
-        {children}
-      </main>
+      <MainArea>{children}</MainArea>
       <QuickNav />
     </div>
   );

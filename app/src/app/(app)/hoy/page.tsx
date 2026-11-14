@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { InstallGuide } from "@/components/onboarding/install-guide";
 import { OccurrenceItem } from "@/components/today/occurrence-item";
+import { TipCard } from "@/components/today/tip-card";
 import {
   formatLongDate,
   IMPORTANCE_LABELS,
@@ -11,13 +13,52 @@ import {
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getSessionProfile, getSessionUserId } from "@/server/auth/session";
-import { resolveActiveCircle } from "@/server/circles/circles";
+import { listMyCircles } from "@/server/circles/circles";
 import { pushStatus } from "@/server/push/subscriptions";
+import {
+  acceptActivity,
+  getActiveTip,
+  isActivityAccepted,
+  listActiveTips,
+  tipOfDay,
+} from "@/server/today/tips";
 import { getToday } from "@/server/today/today";
 
 export const metadata: Metadata = { title: "Hoy" };
 
 const IMPORTANCE_ORDER = ["important", "normal", "whenever"] as const;
+
+/** Suma la actividad del día a "Hoy". Vuelve a comprobar sesión y pertenencia. */
+async function acceptTip(
+  circleId: string,
+  tipId: string,
+): Promise<{ ok: boolean; message?: string }> {
+  "use server";
+  const supabase = await createSupabaseServerClient();
+  const userId = await getSessionUserId(supabase);
+  if (!userId) {
+    return { ok: false, message: "Tu sesión terminó. Vuelve a entrar." };
+  }
+  const circle = (await listMyCircles(supabase)).find(
+    (item) => item.id === circleId,
+  );
+  const tip = await getActiveTip(supabase, tipId);
+  if (!circle || !tip) {
+    return { ok: false, message: "No pudimos agregarla. Prueba de nuevo." };
+  }
+  const result = await acceptActivity(
+    supabase,
+    userId,
+    circle.id,
+    tip,
+    new Date(),
+    circle.timezone,
+  );
+  revalidatePath("/hoy");
+  return result.ok
+    ? { ok: true }
+    : { ok: false, message: result.error.message };
+}
 
 export default async function TodayPage({
   searchParams,
@@ -30,27 +71,59 @@ export default async function TodayPage({
     redirect("/entrar");
   }
   const params = await searchParams;
-  const circle = await resolveActiveCircle(
-    supabase,
-    typeof params.c === "string" ? params.c : null,
-  );
+  const circles = await listMyCircles(supabase);
+  const requested = typeof params.c === "string" ? params.c : null;
+  const circle =
+    circles.find((item) => item.id === requested) ??
+    circles.find((item) => item.closedAt === null) ??
+    circles[0];
   if (!circle) {
     redirect("/bienvenida");
   }
-  const [profile, today, push] = await Promise.all([
+  const [profile, today, push, tips] = await Promise.all([
     getSessionProfile(supabase, userId),
     getToday(supabase, createSupabaseAdminClient(), circle.id, new Date()),
     pushStatus(supabase),
+    listActiveTips(supabase),
   ]);
   if (!today) {
     redirect("/bienvenida");
   }
+  const tip = tipOfDay(tips, today.localDate, circle.careType);
+  const tipAccepted = tip
+    ? await isActivityAccepted(supabase, circle.id, tip, today.localDate)
+    : false;
 
   const { day, week } = today.progress;
-  const hasItems = day.total > 0;
 
   return (
     <>
+      {circles.length > 1 ? (
+        <nav
+          aria-label="Persona que estás viendo"
+          className="flex flex-col gap-2 rounded-card border border-border bg-surface p-4"
+        >
+          <p className="text-base text-fg-muted">
+            Estás viendo:{" "}
+            <strong className="text-fg">{circle.caredName}</strong>
+          </p>
+          <ul className="flex flex-wrap gap-2">
+            {circles
+              .filter((item) => item.id !== circle.id)
+              .map((item) => (
+                <li key={item.id}>
+                  <Link
+                    href={`/hoy?c=${item.id}`}
+                    className="inline-flex min-h-12 items-center rounded-control border-2 border-border-strong bg-background px-4 text-lg font-bold text-fg no-underline"
+                  >
+                    Ver a {item.caredName}
+                  </Link>
+                </li>
+              ))}
+          </ul>
+        </nav>
+      ) : null}
+
       <div className="flex flex-col gap-1">
         <h1 className="text-3xl font-bold leading-tight">
           Hola{profile?.displayName ? `, ${profile.displayName}` : ""}
@@ -84,7 +157,7 @@ export default async function TodayPage({
         </p>
       ) : null}
 
-      {hasItems ? (
+      {day.total > 0 ? (
         <p className="text-lg">
           <strong>
             Vas {day.done} de {day.total} hoy.
@@ -127,6 +200,16 @@ export default async function TodayPage({
           </section>
         );
       })}
+
+      {tip ? (
+        <TipCard
+          key={tip.id}
+          text={tip.text}
+          activityTitle={tip.kind === "actividad" ? tip.activityTitle : null}
+          alreadyAccepted={tipAccepted}
+          accept={acceptTip.bind(null, circle.id, tip.id)}
+        />
+      ) : null}
 
       {today.upcoming.length > 0 ? (
         <section

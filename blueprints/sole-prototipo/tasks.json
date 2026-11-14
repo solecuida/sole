@@ -765,7 +765,7 @@
       "app/tests/unit/tips.test.ts",
       "app/tests/e2e/today.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E4-T3",
