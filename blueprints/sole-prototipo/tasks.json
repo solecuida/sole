@@ -498,7 +498,7 @@
       "app/tests/unit/recurrence.test.ts",
       "app/tests/unit/recurrence-dst.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E3-T2",

@@ -21,6 +21,7 @@ Tareas del fundador. Ninguna frena el desarrollo; todas hacen falta antes del la
 
 ## Prioridad baja
 
+- **Ajustes visuales.** El fundador probó la bienvenida el 2026-11-14 y la aprobó, pero anticipa ajustes de aspecto. Se revisan en el pulido de la fase 8 (paso 70) o antes si él los detalla; los colores, tipografía y radios viven en `app/src/app/globals.css` y `app/src/lib/design/tokens.ts`.
 - **Preguntas de diseño que el brief no resuelve** (no frenan nada hoy; están al final de cada documento de `docs/diseno/`):
   - F12: si hay varios contactos de emergencia, hoy se llama al primero. ¿Debería poder elegir la persona cuidada?
   - F16: ¿cuántos familiares caben en un círculo durante el piloto? ¿Puede un familiar salirse solo?
