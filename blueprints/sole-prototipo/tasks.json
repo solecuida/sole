@@ -531,7 +531,7 @@
       "app/src/server/reminders/reminders.ts",
       "app/tests/db/reminders.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E3-T3",
