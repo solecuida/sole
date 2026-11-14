@@ -1,0 +1,9 @@
+#!/bin/sh
+# Escaneo de secretos antes de cada commit. Es una comodidad local:
+# la compuerta real es el job `gitleaks` de CI, que revisa todo el historial.
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks git --pre-commit --staged --redact --config .gitleaks.toml
+  exit $?
+fi
+echo "gitleaks no está instalado: el escaneo corre en CI"
+exit 0

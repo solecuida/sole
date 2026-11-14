@@ -86,7 +86,7 @@
       ".githooks/pre-commit",
       "app/tests/unit/repo-config.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E1-T4",
