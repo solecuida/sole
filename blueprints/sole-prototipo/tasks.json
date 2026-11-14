@@ -915,7 +915,7 @@
       "app/tests/db/selfcare.test.ts",
       "app/tests/e2e/selfcare.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E4-T8",
