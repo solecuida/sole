@@ -1,5 +1,5 @@
 import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
-import { Serwist } from "serwist";
+import { NetworkOnly, Serwist } from "serwist";
 
 // Service worker de Sole. Hace tres cosas:
 //  1. Guarda en el teléfono los archivos estáticos del build (para abrir rápido).
@@ -23,7 +23,24 @@ const serwist = new Serwist({
   skipWaiting: true,
   clientsClaim: true,
   navigationPreload: true,
-  runtimeCaching: [],
+  // Las páginas siempre se piden a la red y nunca se guardan (tienen datos del
+  // cuidado). Esta ruta existe solo para poder responder algo cuando no hay señal.
+  runtimeCaching: [
+    {
+      matcher: ({ request }) => request.destination === "document",
+      handler: new NetworkOnly(),
+    },
+  ],
+  // Sin señal, cualquier página se reemplaza por /~offline, que muestra el
+  // último "Hoy" guardado en el teléfono.
+  fallbacks: {
+    entries: [
+      {
+        url: "/~offline",
+        matcher: ({ request }) => request.destination === "document",
+      },
+    ],
+  },
 });
 
 serwist.addEventListeners();

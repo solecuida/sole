@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import withSerwistInit from "@serwist/next";
 import type { NextConfig } from "next";
 
@@ -16,6 +17,8 @@ const withSerwist = withSerwistInit({
   swDest: "public/sw.js",
   disable: process.env.NODE_ENV === "development",
   reloadOnOnline: false,
+  // La página sin conexión se guarda en el teléfono en cada versión nueva.
+  additionalPrecacheEntries: [{ url: "/~offline", revision: randomUUID() }],
 });
 
 export default withSerwist(nextConfig);

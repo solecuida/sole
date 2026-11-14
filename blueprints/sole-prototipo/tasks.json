@@ -820,7 +820,7 @@
       "app/src/sw.ts",
       "app/tests/e2e/offline-reload.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E4-T5",

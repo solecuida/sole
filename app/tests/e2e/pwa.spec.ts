@@ -50,5 +50,9 @@ test("el worker no guarda páginas ni respuestas de la API", async ({
     }
     return urls;
   });
-  expect(cached.filter((path) => !path.startsWith("/_next/"))).toEqual([]);
+  // Lo único guardado fuera de los archivos del build es la página sin
+  // conexión, que no trae datos de nadie (los lee del teléfono al abrirse).
+  expect(cached.filter((path) => !path.startsWith("/_next/"))).toEqual([
+    "/~offline",
+  ]);
 });
