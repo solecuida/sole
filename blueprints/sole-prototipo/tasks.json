@@ -734,7 +734,7 @@
       "app/src/app/api/occurrences/mark/route.ts",
       "app/tests/db/today.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E4-T2",
