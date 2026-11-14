@@ -225,7 +225,7 @@
       "docs/diseno/transversal.md",
       "app/tests/unit/docs-diseno.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E2-T1",

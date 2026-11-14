@@ -1,6 +1,6 @@
 # Pendientes
 
-Estado: fase 0 (preparación) cerrada el 2026-11-14 · pasos 1 a 6 de 70 con su etiqueta `step-NN` · sigue el paso 7 (`E1-T7`, diseño funcional).
+Estado: épica 01 cerrada el 2026-11-14 (fase 0 y diseño funcional de las 17 funcionalidades) · pasos 1 a 8 de 70 con su etiqueta `step-NN` · sigue el paso 9 (`E2-T1`, aislamiento por rol y límites de frecuencia).
 
 **Cómo retomar:** abre `blueprints/sole-prototipo/tasks.json`, busca la primera tarea con `"status": "pending"` y sigue su bloque en `blueprints/sole-prototipo/epics/`. Antes, en Git Bash desde la raíz del repo: abre Docker Desktop, `export PATH="$HOME/.local:$HOME/.local/bin:$PATH"` y `pnpm -C app db:start`.
 
@@ -19,5 +19,9 @@ Tareas del fundador. Ninguna frena el desarrollo; todas hacen falta antes del la
 
 ## Prioridad baja
 
+- **Preguntas de diseño que el brief no resuelve** (no frenan nada hoy; están al final de cada documento de `docs/diseno/`):
+  - F12: si hay varios contactos de emergencia, hoy se llama al primero. ¿Debería poder elegir la persona cuidada?
+  - F16: ¿cuántos familiares caben en un círculo durante el piloto? ¿Puede un familiar salirse solo?
+  - F12: confirmar el 131 (SAMU) en una fuente oficial antes del lanzamiento.
 - **F16 · Familiares en el círculo.** Se diseña completa en `docs/diseno/familiares.md` (paso 7) y se construyen en la fase 8 si sobra tiempo (pasos 66 a 68).
 - **F17 · Panel para organizaciones.** Se construyen en la fase 8 si sobra tiempo (paso 69).
