@@ -99,9 +99,14 @@ body {
   line-height: 1.5;
 }
 
-a {
-  color: var(--primary);
-  text-underline-offset: 0.2em;
+/* En la capa base: así las clases (text-fg, no-underline) pueden cambiarlo.
+   Los enlaces van subrayados para no distinguirse solo por color. */
+@layer base {
+  a {
+    color: var(--primary);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
 }
 
 :focus-visible {
