@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { enqueueMark } from "@/lib/offline/outbox";
 import {
   type MarkRequest,
   type MarkStatus,
@@ -57,6 +58,7 @@ export function OccurrenceItem({ item }: { item: OccurrenceItemData }) {
   const [editing, setEditing] = useState(false);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [queued, setQueued] = useState(false);
 
   const resolved = status !== "pending" && !editing;
   const overdue = item.overdue && status === "pending";
@@ -80,6 +82,7 @@ export function OccurrenceItem({ item }: { item: OccurrenceItemData }) {
     setPanel("actions");
     setEditing(false);
     setNotice(null);
+    setQueued(false);
     setBusy(true);
     const outcome = await sendMark(request);
     setBusy(false);
@@ -87,11 +90,21 @@ export function OccurrenceItem({ item }: { item: OccurrenceItemData }) {
       router.refresh();
       return;
     }
+    if (outcome.kind === "offline") {
+      try {
+        // Sin señal: queda guardada en el teléfono con su misma clave.
+        await enqueueMark(request);
+        setQueued(true);
+        return;
+      } catch {
+        // Sin IndexedDB (modo privado) no se puede guardar: se avisa abajo.
+      }
+    }
     setStatus(previous.status);
     setReason(previous.reason);
     setNotice(
       outcome.kind === "offline"
-        ? "No hay conexión. Prueba de nuevo cuando vuelva la señal."
+        ? "No hay conexión y no pudimos guardarlo en tu teléfono. Prueba de nuevo."
         : outcome.message,
     );
   }
@@ -198,9 +211,16 @@ export function OccurrenceItem({ item }: { item: OccurrenceItemData }) {
         </fieldset>
       ) : null}
 
-      <p aria-live="polite" className="text-base font-bold text-danger">
-        {notice}
-      </p>
+      <div aria-live="polite">
+        {queued ? (
+          <p className="text-base text-fg-muted">
+            Guardado sin conexión · se enviará cuando vuelva la señal
+          </p>
+        ) : null}
+        {notice ? (
+          <p className="text-base font-bold text-danger">{notice}</p>
+        ) : null}
+      </div>
     </li>
   );
 }

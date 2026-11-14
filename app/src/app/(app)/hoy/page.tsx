@@ -4,6 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { InstallGuide } from "@/components/onboarding/install-guide";
 import { OccurrenceItem } from "@/components/today/occurrence-item";
+import { OfflineSync } from "@/components/today/offline-sync";
 import { TipCard } from "@/components/today/tip-card";
 import {
   formatLongDate,
@@ -95,6 +96,28 @@ export default async function TodayPage({
     : false;
 
   const { day, week } = today.progress;
+  // Lo que se guarda en el teléfono para ver "Hoy" sin señal: sin el nombre ni
+  // la indicación de los medicamentos.
+  const strip = (items: (typeof today.groups)["normal"]) =>
+    items.map((item) => ({
+      id: item.id,
+      title: item.title,
+      time: item.time,
+      status: item.status,
+      overdue: item.overdue,
+      notDoneReason: item.notDoneReason,
+      snoozedUntil: item.snoozedUntil,
+    }));
+  const snapshot = {
+    circleId: today.circleId,
+    caredName: today.caredName,
+    localDate: today.localDate,
+    groups: {
+      important: strip(today.groups.important),
+      normal: strip(today.groups.normal),
+      whenever: strip(today.groups.whenever),
+    },
+  };
 
   return (
     <>
@@ -135,6 +158,8 @@ export default async function TodayPage({
           {formatLongDate(today.localDate)}
         </p>
       </div>
+
+      <OfflineSync snapshot={snapshot} />
 
       {params.bienvenida === "1" ? (
         <>
