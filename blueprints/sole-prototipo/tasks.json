@@ -944,7 +944,7 @@
       "app/src/app/(app)/cuenta/page.tsx",
       "app/tests/db/account-export.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E4-T9",

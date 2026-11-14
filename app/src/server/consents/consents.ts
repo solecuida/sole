@@ -137,3 +137,32 @@ export function grantResearch(
 ): Promise<Result<undefined, ConsentErrorCode>> {
   return appendResearch(client, userId, true);
 }
+
+export interface ConsentRecord {
+  granted: boolean;
+  version: string;
+  /** Cuándo se registró esa decisión (ISO). */
+  decidedAt: string;
+}
+
+/** Última decisión de cada capa, con su fecha: lo que muestra «Mi cuenta». */
+export async function getConsentRecords(
+  client: Client,
+  userId: string,
+): Promise<Partial<Record<Layer, ConsentRecord>>> {
+  const { data } = await client
+    .from("consents")
+    .select("layer, granted, version, created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(200);
+  const records: Partial<Record<Layer, ConsentRecord>> = {};
+  for (const row of data ?? []) {
+    records[row.layer] ??= {
+      granted: row.granted,
+      version: row.version,
+      decidedAt: row.created_at,
+    };
+  }
+  return records;
+}
