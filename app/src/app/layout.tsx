@@ -18,6 +18,7 @@ export const metadata: Metadata = {
   },
   description:
     "Sole te ayuda a ordenar el día cuando cuidas a otra persona: recordatorios, bitácora y un espacio para ti. Gratis, en español de Chile.",
+  icons: { icon: "/icons/192", apple: "/icons/192" },
 };
 
 export const viewport: Viewport = {

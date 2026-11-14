@@ -645,7 +645,7 @@
       "app/src/app/icons/[size]/route.tsx",
       "app/tests/e2e/manifest.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E3-T7",
