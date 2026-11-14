@@ -376,7 +376,7 @@
       "app/tests/unit/events-catalog.test.ts",
       "app/tests/db/events.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E2-T6",
