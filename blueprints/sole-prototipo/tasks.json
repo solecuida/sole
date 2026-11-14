@@ -883,7 +883,7 @@
       "app/tests/db/journal.test.ts",
       "app/tests/e2e/journal.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E4-T7",
