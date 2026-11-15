@@ -973,7 +973,7 @@
       "app/src/app/(app)/cuenta/page.tsx",
       "app/tests/db/account-lifecycle.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E5-T1",

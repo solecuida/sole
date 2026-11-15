@@ -8,7 +8,7 @@ export default async function HomePage({
 }: {
   searchParams: SearchParams;
 }) {
-  const { org } = await searchParams;
+  const { org, cuenta } = await searchParams;
   const validOrg =
     typeof org === "string" && /^[A-Za-z0-9-]{3,32}$/.test(org) ? org : null;
   const loginHref = validOrg ? `/entrar?org=${validOrg}` : "/entrar";
@@ -24,6 +24,15 @@ export default async function HomePage({
       >
         S
       </div>
+      {cuenta === "borrado" ? (
+        <p
+          role="status"
+          className="rounded-card border border-info bg-info-bg p-4 text-info"
+        >
+          Tu cuenta quedó desactivada y se borrará en 7 días. Si cambias de
+          idea, vuelve a entrar antes de ese plazo para recuperarla.
+        </p>
+      ) : null}
       <h1 className="text-4xl font-bold leading-tight">Sole</h1>
       <div className="flex flex-col gap-3 text-xl">
         <p>Sole te acompaña en el día a día de cuidar a otra persona.</p>

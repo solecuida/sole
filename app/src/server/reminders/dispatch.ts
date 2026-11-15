@@ -108,16 +108,19 @@ async function caregiversByCircle(admin: Admin, circleIds: string[]) {
   if (circleIds.length === 0) {
     return byCircle;
   }
-  const { data } = await admin
-    .from("circle_members")
-    .select("circle_id, user_id, profile:profiles!inner(followup_minutes)")
-    .eq("role", "caregiver")
-    .in("circle_id", circleIds);
-  for (const member of data ?? []) {
-    byCircle.set(member.circle_id, [
-      ...(byCircle.get(member.circle_id) ?? []),
-      { userId: member.user_id, followup: member.profile.followup_minutes },
-    ]);
+  // Por tandas: una lista de cientos de ids no cabe en una sola consulta.
+  for (let start = 0; start < circleIds.length; start += 100) {
+    const { data } = await admin
+      .from("circle_members")
+      .select("circle_id, user_id, profile:profiles!inner(followup_minutes)")
+      .eq("role", "caregiver")
+      .in("circle_id", circleIds.slice(start, start + 100));
+    for (const member of data ?? []) {
+      byCircle.set(member.circle_id, [
+        ...(byCircle.get(member.circle_id) ?? []),
+        { userId: member.user_id, followup: member.profile.followup_minutes },
+      ]);
+    }
   }
   return byCircle;
 }

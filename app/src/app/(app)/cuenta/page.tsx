@@ -1,18 +1,22 @@
 import type { Metadata } from "next";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { CloseCircleSection } from "@/components/account/close-circle-section";
+import { DeleteAccountSection } from "@/components/account/delete-account-section";
 import { Field } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { formatLongDate } from "@/lib/reminders/labels";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { CSV_TABLES, type CsvTable } from "@/server/account/export";
 import { getSessionUserId } from "@/server/auth/session";
-import { localDate } from "@/server/circles/circles";
+import { listMyCircles, localDate } from "@/server/circles/circles";
 import {
   getConsentRecords,
   grantResearch,
   revokeResearch,
 } from "@/server/consents/consents";
+
+import { closeCircleAction, deleteAccountAction } from "./actions";
 
 export const metadata: Metadata = { title: "Mi cuenta" };
 
@@ -36,6 +40,13 @@ const MESSAGES: Record<string, { text: string; error?: boolean }> = {
     text: "Las dos contraseñas no son iguales.",
     error: true,
   },
+  cerrado: {
+    text: "Listo. Ese espacio quedó cerrado y ya no llegarán sus avisos. Lo que escribiste sigue aquí.",
+  },
+  "cerrado-fallecimiento": {
+    text: "Lo sentimos mucho. Ya silenciamos todos los recordatorios. Lo que escribiste sigue aquí, por si quieres guardarlo.",
+  },
+  motivo: { text: "Elige un motivo para cerrar.", error: true },
   error: {
     text: "No pudimos guardar. Prueba de nuevo en un momento.",
     error: true,
@@ -98,7 +109,19 @@ export default async function AccountPage({
   const params = await searchParams;
   const message =
     typeof params.aviso === "string" ? MESSAGES[params.aviso] : undefined;
-  const consents = await getConsentRecords(supabase, userId);
+  const [consents, circles, membership] = await Promise.all([
+    getConsentRecords(supabase, userId),
+    listMyCircles(supabase),
+    supabase
+      .from("circle_members")
+      .select("circle_id")
+      .eq("user_id", userId)
+      .eq("role", "caregiver"),
+  ]);
+  const managed = new Set((membership.data ?? []).map((row) => row.circle_id));
+  const closable = circles
+    .filter((circle) => circle.closedAt === null && managed.has(circle.id))
+    .map((circle) => ({ id: circle.id, caredName: circle.caredName }));
   const since = (iso: string | undefined) =>
     iso ? formatLongDate(localDate(new Date(iso))) : null;
   const researchOn = consents.research?.granted === true;
@@ -233,7 +256,6 @@ export default async function AccountPage({
             label="Contraseña nueva"
             hint="Al menos 10 caracteres, con mayúsculas, minúsculas y números."
             autoComplete="new-password"
-            minLength={10}
             maxLength={72}
           />
           <Field
@@ -247,6 +269,17 @@ export default async function AccountPage({
           <SubmitButton variant="secondary">Guardar contraseña</SubmitButton>
         </form>
       </section>
+
+      <CloseCircleSection circles={closable} close={closeCircleAction} />
+
+      <DeleteAccountSection
+        remove={deleteAccountAction}
+        error={
+          params.aviso === "confirmar"
+            ? "Escribe la palabra BORRAR para confirmar."
+            : undefined
+        }
+      />
     </>
   );
 }

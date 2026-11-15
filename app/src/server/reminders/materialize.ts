@@ -16,6 +16,10 @@ const DAY = 24 * HOUR;
 /** Margen hacia atrás: lo que venció hace poco todavía se muestra y se avisa. */
 const LOOKBACK_HOURS = 6;
 const CHUNK = 500;
+/** Filas por página al leer (tope de la API). */
+const PAGE = 1000;
+/** Cuántos ids de círculo van en una misma consulta. */
+const ID_CHUNK = 100;
 
 export interface MaterializeOptions {
   now: Date;
@@ -46,40 +50,76 @@ export async function materializeOccurrences(
   const to = new Date(now.getTime() + horizonHours * HOUR);
 
   // Círculos abiertos cuya cuidadora (quien lo creó) no tiene la cuenta desactivada.
-  let circlesQuery = admin
-    .from("circles")
-    .select(
-      "id, timezone, creator:profiles!circles_created_by_fkey(deactivated_at)",
-    )
-    .is("closed_at", null);
-  if (circleIds) {
-    circlesQuery = circlesQuery.in("id", circleIds);
-  }
-  const circles = await circlesQuery;
-  if (circles.error) {
-    throw new Error(`materialize: círculos (${circles.error.code})`);
-  }
+  // Se lee de a páginas: la API entrega como máximo 1.000 filas por consulta.
   const timezones = new Map<string, string>();
-  for (const circle of circles.data ?? []) {
-    if (circle.creator && circle.creator.deactivated_at === null) {
-      timezones.set(circle.id, circle.timezone);
+  // Sin lista: todos los círculos (una sola pasada). Con lista: por tandas.
+  const filters: (string[] | null)[] = circleIds
+    ? Array.from({ length: Math.ceil(circleIds.length / ID_CHUNK) }, (_, i) =>
+        circleIds.slice(i * ID_CHUNK, (i + 1) * ID_CHUNK),
+      )
+    : [null];
+  for (const filter of filters) {
+    for (let offset = 0; ; offset += PAGE) {
+      let query = admin
+        .from("circles")
+        .select(
+          "id, timezone, creator:profiles!circles_created_by_fkey(deactivated_at)",
+        )
+        .is("closed_at", null)
+        .order("id", { ascending: true })
+        .range(offset, offset + PAGE - 1);
+      if (filter) {
+        query = query.in("id", filter);
+      }
+      const circles = await query;
+      if (circles.error) {
+        throw new Error(`materialize: círculos (${circles.error.code})`);
+      }
+      for (const circle of circles.data ?? []) {
+        if (circle.creator && circle.creator.deactivated_at === null) {
+          timezones.set(circle.id, circle.timezone);
+        }
+      }
+      if ((circles.data?.length ?? 0) < PAGE) {
+        break;
+      }
     }
   }
   if (timezones.size === 0) {
     return { created: 0 };
   }
 
-  const reminders = await admin
-    .from("reminders")
-    .select("id, circle_id, rule, advance_days")
-    .eq("active", true)
-    .in("circle_id", [...timezones.keys()]);
-  if (reminders.error) {
-    throw new Error(`materialize: recordatorios (${reminders.error.code})`);
+  // Recordatorios activos de esos círculos, pidiendo los círculos por tandas:
+  // una lista de cientos de ids no cabe en una sola consulta.
+  const activeReminders: {
+    id: string;
+    circle_id: string;
+    rule: unknown;
+    advance_days: number[] | null;
+  }[] = [];
+  const ids = [...timezones.keys()];
+  for (let start = 0; start < ids.length; start += ID_CHUNK) {
+    const chunk = ids.slice(start, start + ID_CHUNK);
+    for (let offset = 0; ; offset += PAGE) {
+      const reminders = await admin
+        .from("reminders")
+        .select("id, circle_id, rule, advance_days")
+        .eq("active", true)
+        .in("circle_id", chunk)
+        .order("id", { ascending: true })
+        .range(offset, offset + PAGE - 1);
+      if (reminders.error) {
+        throw new Error(`materialize: recordatorios (${reminders.error.code})`);
+      }
+      activeReminders.push(...(reminders.data ?? []));
+      if ((reminders.data?.length ?? 0) < PAGE) {
+        break;
+      }
+    }
   }
 
   const rows: OccurrenceInsert[] = [];
-  for (const reminder of reminders.data ?? []) {
+  for (const reminder of activeReminders) {
     const tz = timezones.get(reminder.circle_id);
     const rule = ruleSchema.safeParse(reminder.rule);
     if (!tz || !rule.success) {
