@@ -1334,7 +1334,7 @@
       "app/tests/unit/production-hygiene.test.tsx",
       "app/scripts/check-bundle-secrets.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E6-T4",
