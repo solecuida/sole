@@ -1446,7 +1446,7 @@
       "app/src/app/api/cron/daily/route.ts",
       "app/tests/db/daily-jobs.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E7-T2",
