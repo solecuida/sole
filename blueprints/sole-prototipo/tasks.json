@@ -1183,7 +1183,7 @@
       "app/src/components/admin/metric-chart.tsx",
       "app/tests/db/admin-metrics.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E5-T8",
