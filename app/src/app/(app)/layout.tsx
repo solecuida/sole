@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { RestoreAccount } from "@/components/account/restore-account";
 import { MainArea, QuickNav, TopBar } from "@/components/app/main-nav";
+import { FeedbackButton } from "@/components/feedback/feedback-button";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { formatLongDate } from "@/lib/reminders/labels";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -18,6 +19,8 @@ import {
   getConsentState,
   hasRequiredConsents,
 } from "@/server/consents/consents";
+import { submitFeedback } from "@/server/feedback/actions";
+import { feedbackAllowed } from "@/server/feedback/feedback";
 import { signOut } from "../(auth)/entrar/actions";
 import { restoreAccountAction } from "./cuenta/actions";
 
@@ -54,6 +57,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     redirect("/bienvenida");
   }
 
+  const askFeedback = await feedbackAllowed(supabase);
   const profile = await getSessionProfile(supabase, userId);
   if (profile) {
     await touchLastActive(supabase, userId, profile.lastActiveAt, new Date());
@@ -70,7 +74,10 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
           </form>
         }
       />
-      <MainArea>{children}</MainArea>
+      <MainArea>
+        {children}
+        {askFeedback ? <FeedbackButton submit={submitFeedback} /> : null}
+      </MainArea>
       <QuickNav />
     </div>
   );
