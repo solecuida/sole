@@ -1,0 +1,31 @@
+name: codeql
+
+# Análisis estático de GitHub. En un repositorio privado CodeQL es de pago:
+# ahí el job se omite y Semgrep en ci.yml cubre el análisis.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 7 * * 1" # lunes, UTC
+
+permissions:
+  contents: read
+
+jobs:
+  analizar:
+    if: github.event.repository.private == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Solo este job publica los hallazgos en la pestaña de seguridad.
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: javascript-typescript
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:javascript-typescript"
