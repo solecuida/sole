@@ -1122,7 +1122,7 @@
       "app/tests/db/fake-doors.test.ts",
       "app/tests/e2e/fake-doors.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E5-T6",
