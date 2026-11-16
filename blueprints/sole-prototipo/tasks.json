@@ -1416,7 +1416,7 @@
       "docs/legal/eipd.md",
       "app/tests/unit/docs-seguridad.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E7-T1",
