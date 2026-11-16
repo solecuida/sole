@@ -1389,7 +1389,7 @@
       "docs/seguridad/iso27001-anexo-a.md",
       "app/tests/unit/docs-seguridad.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E6-T6",
