@@ -566,6 +566,9 @@ isOneToOne: false
 "create_circle":
 { Args: { "p_care_type": Database["public"]['Enums']["care_type"],"p_cared_name": string,"p_display_name": string,"p_relation": string }; Returns: string
                            },
+"is_admin_with_mfa":
+{ Args: Record<PropertyKey, never>; Returns: boolean
+                           },
 "mark_occurrence":
 { Args: { "p_idempotency_key": string,"p_occurrence": string,"p_reason"?: string,"p_snooze_minutes"?: number,"p_status": Database["public"]['Enums']["occurrence_status"],"p_via"?: string }; Returns: {
               "advance_days": number,

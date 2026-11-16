@@ -1152,7 +1152,7 @@
       "app/tests/support/totp.ts",
       "app/tests/db/admin-access.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E5-T7",
