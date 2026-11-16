@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { SurveyCard } from "@/components/feedback/survey-card";
 import { InstallGuide } from "@/components/onboarding/install-guide";
 import { OccurrenceItem } from "@/components/today/occurrence-item";
 import { OfflineSync } from "@/components/today/offline-sync";
@@ -11,11 +12,17 @@ import {
   IMPORTANCE_LABELS,
   KIND_LABELS,
 } from "@/lib/reminders/labels";
+import { fail } from "@/lib/result";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getSessionProfile, getSessionUserId } from "@/server/auth/session";
 import { listMyCircles } from "@/server/circles/circles";
 import { pushStatus } from "@/server/push/subscriptions";
+import {
+  answerSurvey,
+  dismissSurvey,
+  loadDueSurvey,
+} from "@/server/surveys/surveys";
 import {
   acceptActivity,
   getActiveTip,
@@ -61,6 +68,28 @@ async function acceptTip(
     : { ok: false, message: result.error.message };
 }
 
+/** Guarda la respuesta de la microencuesta. Vuelve a comprobar la sesión. */
+async function answerSurveyAction(key: string, value: string) {
+  "use server";
+  const supabase = await createSupabaseServerClient();
+  const userId = await getSessionUserId(supabase);
+  if (!userId) {
+    return fail("unauthorized", "Tu sesión terminó. Vuelve a entrar.");
+  }
+  return answerSurvey(supabase, userId, key, value);
+}
+
+/** Cierra la microencuesta sin responder («Ahora no»). */
+async function dismissSurveyAction(key: string) {
+  "use server";
+  const supabase = await createSupabaseServerClient();
+  const userId = await getSessionUserId(supabase);
+  if (!userId) {
+    return fail("unauthorized", "Tu sesión terminó. Vuelve a entrar.");
+  }
+  return dismissSurvey(supabase, userId, key);
+}
+
 export default async function TodayPage({
   searchParams,
 }: {
@@ -81,11 +110,15 @@ export default async function TodayPage({
   if (!circle) {
     redirect("/bienvenida");
   }
-  const [profile, today, push, tips] = await Promise.all([
+  const [profile, today, push, tips, survey] = await Promise.all([
     getSessionProfile(supabase, userId),
     getToday(supabase, createSupabaseAdminClient(), circle.id, new Date()),
     pushStatus(supabase),
     listActiveTips(supabase),
+    // Con el círculo cerrado no se piden encuestas.
+    circle.closedAt === null
+      ? loadDueSurvey(supabase, userId, new Date())
+      : Promise.resolve(null),
   ]);
   if (!today) {
     redirect("/bienvenida");
@@ -233,6 +266,15 @@ export default async function TodayPage({
           activityTitle={tip.kind === "actividad" ? tip.activityTitle : null}
           alreadyAccepted={tipAccepted}
           accept={acceptTip.bind(null, circle.id, tip.id)}
+        />
+      ) : null}
+
+      {survey ? (
+        <SurveyCard
+          key={survey.key}
+          survey={survey}
+          answer={answerSurveyAction}
+          dismiss={dismissSurveyAction}
         />
       ) : null}
 

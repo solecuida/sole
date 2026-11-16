@@ -54,7 +54,7 @@ Prioridad P1. La evidencia también es lo que la gente cuenta.
 3. **Microencuestas** de 1 o 2 preguntas en "Hoy", según los días desde el registro:
    - Día 3: facilidad ("¿Qué tan fácil te resultó empezar?").
    - Día 14: valor ("¿Sole te está sirviendo?").
-   - Día 28: "¿Cómo te sentirías si Sole dejara de existir?" (muy decepcionada / algo decepcionada / no me afectaría).
+   - Día 28: "¿Cómo te sentirías si Sole dejara de existir?" (muy decepcionada / algo decepcionada / no me importaría).
    - Día 56: cierre de la cohorte y si recomendaría Sole a una organización.
 4. Cada encuesta se puede **responder o cerrar**; no vuelve a aparecer.
 
