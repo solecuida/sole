@@ -1532,7 +1532,7 @@
       "app/tests/db/rotate-field-key.test.ts",
       "app/tests/unit/docs-mantenimiento.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E7-T5",
