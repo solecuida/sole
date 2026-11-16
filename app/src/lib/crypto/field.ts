@@ -114,7 +114,9 @@ export function decryptField(value: string, context: string): string {
     throw new FieldDecryptError();
   }
   try {
-    const decipher = createDecipheriv("aes-256-gcm", key.bytes, iv);
+    const decipher = createDecipheriv("aes-256-gcm", key.bytes, iv, {
+      authTagLength: TAG_BYTES,
+    });
     decipher.setAAD(Buffer.from(context, "utf8"));
     decipher.setAuthTag(payload.subarray(payload.length - TAG_BYTES));
     return Buffer.concat([
