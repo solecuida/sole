@@ -18,3 +18,14 @@ Sole funciona con costo recurrente cero. Esta tabla dice qué límite tiene cada
 1. **La pausa de Supabase.** Es el único límite que puede botar la app sin que nadie haga nada. El keep-alive diario la evita, y un fallo suyo llega por correo de GitHub.
 2. **El uso no comercial de Vercel Hobby.** No es un límite técnico, es una condición de uso: mientras el piloto sea gratuito y sin publicidad, se cumple.
 3. **Los correos diarios de Resend.** Un día con muchas altas (por ejemplo, después de que una organización difunda su enlace) puede toparse con el límite diario.
+
+## Lo que compara el panel `/admin/limites`
+
+El panel mide el uso real y avisa cuando una fila llega al 80 %. Las cifras viven en `app/src/server/admin/limits.ts`; si una cambia, se cambia en los dos lugares.
+
+| Qué se mide | Cifra de comparación | De dónde sale |
+|---|---|---|
+| Tamaño de la base de datos | 500 MB | Plan gratuito de Supabase `[VERIFICAR]` en https://supabase.com/pricing |
+| Usuarias activas en los últimos 30 días | 50.000 | Plan gratuito de Supabase `[VERIFICAR]` en https://supabase.com/pricing |
+| Teléfonos y navegadores con avisos activos | 5.000 | Referencia propia: cada turno del despachador recorre estas filas. No es un tope del proveedor |
+| Eventos de investigación en los últimos 30 días | 500.000 | Referencia propia: los eventos son lo que más hace crecer la base. No es un tope del proveedor |
