@@ -33,6 +33,11 @@ export const viewport: Viewport = {
   ],
 };
 
+// La política de contenido lleva un nonce distinto en cada petición, y Next solo
+// puede ponerlo en sus scripts si la página se arma al momento. Una página
+// guardada de antemano saldría con scripts sin nonce y el navegador los bloquearía.
+export const dynamic = "force-dynamic";
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="es-CL" className={atkinson.variable}>

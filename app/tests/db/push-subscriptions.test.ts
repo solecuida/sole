@@ -10,7 +10,9 @@ import { adminClient, createTestUser, type TestUser } from "./helpers";
 
 const admin = adminClient();
 
-function subscription(endpoint = `https://push.example.test/${randomUUID()}`) {
+function subscription(
+  endpoint = `https://fcm.googleapis.com/fcm/send/${randomUUID()}`,
+) {
   return { endpoint, keys: { p256dh: "clave-publica", auth: "secreto" } };
 }
 
@@ -113,8 +115,20 @@ describe("POST /api/push · subscribe", () => {
       },
       {
         action: "subscribe",
-        subscription: { endpoint: "https://push.example.test/x" },
+        subscription: { endpoint: "https://fcm.googleapis.com/fcm/send/x" },
       },
+      // Solo se aceptan los servicios de avisos de los navegadores: el servidor
+      // visita esta dirección, así que no puede ser una cualquiera.
+      ...[
+        "https://push.example.test/x",
+        "https://169.254.169.254/latest/meta-data",
+        "https://localhost/x",
+        "https://fcm.googleapis.com.evil.example/x",
+        "https://evil-fcm.googleapis.com.example/x",
+      ].map((endpoint) => ({
+        action: "subscribe",
+        subscription: { endpoint, keys: { p256dh: "a", auth: "b" } },
+      })),
       { action: "otra-cosa" },
       "esto no es json",
     ]) {
@@ -130,7 +144,10 @@ describe("POST /api/push · sin sesión", () => {
   it("responde 401 unauthorized para cualquier acción", async () => {
     for (const body of [
       { action: "subscribe", subscription: subscription() },
-      { action: "unsubscribe", subscription: { endpoint: "https://x.test/1" } },
+      {
+        action: "unsubscribe",
+        subscription: { endpoint: "https://fcm.googleapis.com/fcm/send/1" },
+      },
       { action: "test" },
     ]) {
       const response = await call(null, body);

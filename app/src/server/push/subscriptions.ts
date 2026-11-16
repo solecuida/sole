@@ -5,9 +5,35 @@ import type { Database } from "@/lib/supabase/database.types";
 
 type Client = SupabaseClient<Database>;
 
+// Servicios de avisos de los navegadores (Chrome y Android, Firefox, Edge y
+// Safari). El servidor visita esta dirección al enviar un aviso: si aceptara
+// cualquiera, alguien podría usarlo para llamar a direcciones internas (SSRF).
+const PUSH_HOSTS = [
+  "fcm.googleapis.com",
+  "push.services.mozilla.com",
+  "notify.windows.com",
+  "push.apple.com",
+];
+
+/** ¿La dirección es de un servicio de avisos conocido? */
+export function isPushServiceUrl(value: string): boolean {
+  let host: string;
+  try {
+    host = new URL(value).hostname.toLowerCase();
+  } catch {
+    return false;
+  }
+  return PUSH_HOSTS.some(
+    (allowed) => host === allowed || host.endsWith(`.${allowed}`),
+  );
+}
+
 /** Lo que entrega el navegador al suscribirse (PushSubscription.toJSON()). */
 export const subscriptionSchema = z.object({
-  endpoint: z.url({ protocol: /^https$/ }).max(2000),
+  endpoint: z
+    .url({ protocol: /^https$/ })
+    .max(2000)
+    .refine(isPushServiceUrl, "No es un servicio de avisos conocido"),
   keys: z.object({
     p256dh: z.string().min(1).max(200),
     auth: z.string().min(1).max(100),

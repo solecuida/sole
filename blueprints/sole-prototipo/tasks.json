@@ -1273,7 +1273,7 @@
       "app/tests/unit/security-headers.test.ts",
       "app/tests/e2e/security-headers.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E6-T2",

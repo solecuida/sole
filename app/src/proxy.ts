@@ -2,13 +2,28 @@ import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 import { isPublicPath } from "@/lib/auth/route-rules";
 import { appUrl, requireEnv } from "@/lib/env";
+import { buildCsp, createNonce } from "@/lib/security/headers";
 import type { Database } from "@/lib/supabase/database.types";
 
 // Corre antes de cada petición: refresca la sesión (el JWT dura 1 hora) y manda
 // a /entrar a quien pide una ruta protegida sin sesión. No reemplaza la
 // autorización de cada página, acción y ruta: es la primera barrera, no la única.
+//
+// También fija la política de contenido (CSP) con un nonce nuevo por petición.
 export async function proxy(request: NextRequest) {
-  let response = NextResponse.next({ request });
+  const nonce = createNonce();
+  const csp = buildCsp(nonce, {
+    dev: process.env.NODE_ENV !== "production",
+    insecureOrigin: !appUrl().startsWith("https://"),
+  });
+  // Next lee la política desde la petición y pone el nonce en sus scripts.
+  const forward = () => {
+    const headers = new Headers(request.headers);
+    headers.set("x-nonce", nonce);
+    headers.set("content-security-policy", csp);
+    return NextResponse.next({ request: { headers } });
+  };
+  let response = forward();
 
   const supabase = createServerClient<Database>(
     requireEnv("SUPABASE_URL"),
@@ -28,7 +43,7 @@ export async function proxy(request: NextRequest) {
           for (const { name, value } of cookiesToSet) {
             request.cookies.set(name, value);
           }
-          response = NextResponse.next({ request });
+          response = forward();
           for (const { name, value, options } of cookiesToSet) {
             response.cookies.set(name, value, {
               ...options,
@@ -57,9 +72,11 @@ export async function proxy(request: NextRequest) {
     for (const cookie of response.cookies.getAll()) {
       redirectResponse.cookies.set(cookie);
     }
+    redirectResponse.headers.set("content-security-policy", csp);
     return redirectResponse;
   }
 
+  response.headers.set("content-security-policy", csp);
   return response;
 }
 
