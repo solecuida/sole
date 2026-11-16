@@ -11,8 +11,12 @@ test("una usuaria común recibe 404 en /admin", async ({
 }) => {
   const user = await newUser({ consents: true });
   await login(page, user);
-  const response = await page.goto("/admin");
-  expect(response?.status()).toBe(404);
+  // Recién entrada, la app puede seguir redirigiendo a la bienvenida y eso
+  // interrumpe la carga en WebKit: se reintenta hasta que la página responda.
+  await expect(async () => {
+    const response = await page.goto("/admin").catch(() => null);
+    expect(response?.status()).toBe(404);
+  }).toPass({ timeout: 20_000 });
   const organizations = await page.goto("/admin/organizaciones");
   expect(organizations?.status()).toBe(404);
 });
