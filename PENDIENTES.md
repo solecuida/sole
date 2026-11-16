@@ -1,18 +1,17 @@
 # Pendientes
 
-Estado: fase 5 (despliegue) en curso · pasos 1 a 49 de 70 con su etiqueta `step-NN` · sigue el paso 50 (`E7-T2`). Los encargos de los pasos 50 a 65 están en `blueprints/sole-prototipo/encargos-pasos-50-65.md`.
+Estado: fase 5 (despliegue) cerrada en código el 2026-11-16 · pasos 1 a 53 de 70 con su etiqueta `step-NN` · sigue el paso 54 (`E8-T1`), primero de la fase 6. Falta la parte del fundador: seguir `docs/lanzamiento.md`. Los encargos de los pasos 54 a 65 están en `blueprints/sole-prototipo/encargos-pasos-50-65.md`.
 
 **Cómo retomar:** abre `blueprints/sole-prototipo/tasks.json`, busca la primera tarea con `"status": "pending"` y sigue su bloque en `blueprints/sole-prototipo/epics/`. Antes, en Git Bash desde la raíz del repo: abre Docker Desktop, `export PATH="$HOME/.local:$HOME/.local/bin:$PATH"` y `pnpm -C app db:start`.
 
 ## Prioridad alta
 
-Nada bloquea la construcción: todo corre en local.
+**Seguir `docs/lanzamiento.md`.** Es la lista del día del lanzamiento, casilla por casilla: cuentas, claves en Vercel, Supabase de producción, correo y las comprobaciones antes de abrir al público. Varios puntos de «Prioridad media» de más abajo son casillas de esa lista. El manual de uso diario es `docs/mantenimiento.md`. Nada de esto frena la construcción de las fases 6 y 7.
 
 ## Prioridad media
 
 Tareas del fundador. Ninguna frena el desarrollo; todas hacen falta antes del lanzamiento (fase 5).
 
-- **Licencia gratuita de gitleaks-action.** El repositorio pertenece a la organización `solecuida`, y la acción oficial de gitleaks pide una licencia (gratuita) para organizaciones. Se solicita en https://gitleaks.io y se guarda en GitHub → repositorio → Settings → Secrets and variables → Actions, con el nombre `GITLEAKS_LICENSE`. Sin ella, el job `gitleaks` de CI falla.
 - **Revisar el contenido inicial** (paso 14): las plantillas por tipo de cuidado, los 23 consejos y actividades, y los 7 recursos de Chile están en `app/supabase/migrations/20261114001000_contenido_inicial.sql`. Los recursos no se muestran a nadie hasta que confirmes cada teléfono y enlace en su fuente oficial y los marques como verificados (desde el panel, cuando exista en la fase 3).
 - **Revisar los textos de los permisos** en `app/src/app/(onboarding)/bienvenida/consentimientos/page.tsx`: son la versión `2026-11-14` y enlazan a `solecuida.com/terminos.html` y `cookies.html`, páginas que se escriben en la fase 7. Antes del lanzamiento conviene que alguien con formación legal los lea.
 - **Probar los avisos en un teléfono de verdad.** Las pruebas automáticas usan un emisor falso: confirman que el aviso se arma y se envía una sola vez, no que llegue a un teléfono. La entrega real en un Android con Chrome y en un iPhone con Sole instalada se prueba en el lanzamiento (fase 5), cuando la app tenga dirección `https`.
@@ -23,6 +22,7 @@ Tareas del fundador. Ninguna frena el desarrollo; todas hacen falta antes del la
 - **El código QR del segundo paso no se pudo escanear** (probado por el fundador con Microsoft Authenticator el 2026-11-16); escribiendo la clave a mano también falló, posiblemente por un intento previo. Revisar en la fase 4 que el QR se vea bien y que la clave en texto se muestre en grupos de 4 para copiarla sin errores.
 - **Leer los documentos de seguridad y privacidad** (`docs/seguridad/` y `docs/legal/`). Lo marcado `[VERIFICAR]` no se pudo confirmar desde el código: plazos y bases de la Ley 21.719, país donde cada proveedor guarda los datos, edición vigente del OWASP Top 10 y numeración de ASVS 5.0. Antes del lanzamiento conviene que los revise alguien con formación legal.
 - **Confirmar en Vercel la dirección IP del límite de ingreso.** El límite de intentos de ingreso usa la IP que llega en `x-forwarded-for`; hay que confirmar que en Vercel esa cabecera la escribe Vercel y no la persona. El límite por correo funciona igual. (El trabajo diario de borrado ya está construido, paso 49; empieza a correr solo cuando la app esté desplegada.)
+- **Primer respaldo y simulacro de restauración.** El respaldo nocturno (`.github/workflows/backup.yml`) necesita dos secretos en GitHub (`SUPABASE_DB_URL` y `AGE_PUBLIC_KEY`); puede que la conexión deba ser la del «pooler» de Supabase y no la directa. El simulacro de restauración de `docs/mantenimiento.md` no se ha ejecutado nunca: hay que hacerlo una vez y anotar aquí la fecha.
 - **Confirmar los límites de los planes gratuitos.** Cada cifra de `docs/limites.md` marcada `[VERIFICAR]` debe revisarse en la página oficial enlazada en su fila.
 - **Cuentas y claves para el lanzamiento** (brief §5.1): Supabase de producción, Vercel, Resend, Sentry y Cloudflare Turnstile. La lista de variables y dónde va cada una está en `app/.env.example` y en `blueprints/sole-prototipo/blueprint.md` §10. En producción todas se cargan en Vercel → Project → Settings → Environment Variables; nunca en el repositorio.
 - **Opcional: instalar gitleaks en el computador** para que el hook `.githooks/pre-commit` revise cada commit antes de subirlo. Sin gitleaks instalado, el hook solo avisa y el escaneo ocurre en CI.
