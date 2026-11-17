@@ -17,6 +17,8 @@ export interface PushPayload {
   actions?: { action: string; title: string }[];
   /** Importantes y emergencias: se entregan aunque el teléfono esté ahorrando batería. */
   urgent?: boolean;
+  /** El aviso se queda en pantalla hasta que alguien lo atienda (emergencias). */
+  requireInteraction?: boolean;
 }
 
 export interface PushTarget {

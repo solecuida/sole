@@ -1679,7 +1679,7 @@
       "app/src/app/api/v/[token]/emergencia/route.ts",
       "app/tests/db/emergency.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E8-T5",

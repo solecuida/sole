@@ -53,6 +53,7 @@ interface PushMessage {
   tag?: string;
   occurrenceId?: string;
   actions?: { action: string; title: string }[];
+  requireInteraction?: boolean;
 }
 
 interface NoticeData {
@@ -82,7 +83,9 @@ self.addEventListener("push", (event) => {
     data,
     actions,
     // El "¿Lo hiciste?" se queda en pantalla hasta que la persona responda.
-    requireInteraction: actions.length > 0,
+    // Una emergencia también.
+    requireInteraction:
+      actions.length > 0 || message.requireInteraction === true,
   };
   event.waitUntil(
     self.registration.showNotification(message.title ?? "Sole", options),
