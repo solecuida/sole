@@ -1,0 +1,23 @@
+# Sole
+
+Sole es una app gratuita para organizar el cuidado de un familiar en Chile, hecha por una sola persona.
+
+## Qué es
+
+Una herramienta de organización y acompañamiento para quien cuida a un familiar en casa: recordatorios, tareas, bitácora, contactos importantes y un espacio para quien cuida. No es un dispositivo médico, no da consejo médico y no reemplaza a un servicio de emergencia.
+
+## Para quién
+
+Para personas mayores de 18 años que cuidan a un familiar en Chile, y para organizaciones (fundaciones, municipios, centros de salud, agrupaciones) interesadas en un piloto. Se llama Sole en reconocimiento a quien cuida.
+
+## Cómo probarla
+
+Escribe a hola@solecuida.com o usa el formulario en https://www.solecuida.com/contacto.html. La app es gratuita.
+
+## Privacidad
+
+Sole no muestra publicidad ni vende datos. Los datos más delicados se guardan cifrados, el permiso para investigación es aparte y opcional, y cada persona puede descargar sus datos y borrar su cuenta. Detalle en https://www.solecuida.com/privacidad.html
+
+## Contacto
+
+hola@solecuida.com
