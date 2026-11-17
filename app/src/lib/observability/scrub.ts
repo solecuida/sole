@@ -11,8 +11,13 @@ const PHONE = /\+?\d(?:[\s-]?\d){7,}/g;
 const SENSITIVE_PARAM =
   /((?:[?&#]|^)(?:token_hash|token|code|email|next)=)[^&#\s"']*/g;
 
+// Enlaces secretos que van en la ruta: el vínculo de la persona cuidada
+// (/v/<enlace>, /api/v/<enlace>/…) y las invitaciones (/invitar/<enlace>).
+const SECRET_PATH = /(\/(?:v|invitar)\/)[A-Za-z0-9_-]{16,}/g;
+
 export function scrubText(text: string): string {
   return text
+    .replace(SECRET_PATH, `$1${REDACTED}`)
     .replace(SENSITIVE_PARAM, `$1${REDACTED}`)
     .replace(EMAIL, REDACTED)
     .replace(PHONE, REDACTED);
@@ -65,6 +70,11 @@ export function scrubEvent<T extends ErrorEvent>(event: T): T {
 
   if (typeof next.message === "string") {
     next.message = scrubText(next.message);
+  }
+
+  // El nombre de la operación puede traer la ruta real, con un enlace secreto.
+  if (typeof next.transaction === "string") {
+    next.transaction = scrubText(next.transaction);
   }
 
   if (next.exception?.values) {

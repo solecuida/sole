@@ -4,6 +4,7 @@ import {
   buildSentryOptions,
   scrubBreadcrumb,
   scrubEvent,
+  scrubText,
 } from "@/lib/observability/scrub";
 
 function sample(): ErrorEvent {
@@ -84,5 +85,44 @@ describe("buildSentryOptions", () => {
     expect(options.tracesSampleRate).toBe(0.1);
     expect(options.beforeSend).toBe(scrubEvent);
     expect(options.beforeBreadcrumb).toBe(scrubBreadcrumb);
+  });
+});
+
+describe("enlaces secretos en la ruta", () => {
+  const token = "Zk3vX9aQ_-7TtYb2LmN0pRsUwEeHhJjKkCcDdFfGg1A";
+
+  it("borra el enlace de la persona cuidada y el de invitación, en páginas y en la API", () => {
+    for (const url of [
+      `https://app.solecuida.com/v/${token}`,
+      `https://app.solecuida.com/api/v/${token}/listo`,
+      `https://app.solecuida.com/api/v/${token}/emergencia?x=1`,
+      `https://app.solecuida.com/invitar/${token}`,
+      `GET /v/${token} 500`,
+    ]) {
+      const clean = scrubText(url);
+      expect(clean).not.toContain(token);
+      expect(clean).toContain("[filtrado]");
+    }
+    expect(scrubText(`https://app.solecuida.com/api/v/${token}/listo`)).toBe(
+      "https://app.solecuida.com/api/v/[filtrado]/listo",
+    );
+  });
+
+  it("no toca rutas comunes", () => {
+    expect(scrubText("https://app.solecuida.com/hoy")).toBe(
+      "https://app.solecuida.com/hoy",
+    );
+    expect(scrubText("/informes/medico?mes=2026-11")).toBe(
+      "/informes/medico?mes=2026-11",
+    );
+  });
+
+  it("también lo borra de la dirección de la petición de un evento", () => {
+    const event = scrubEvent({
+      type: undefined,
+      request: { url: `https://app.solecuida.com/v/${token}` },
+      transaction: `GET /api/v/${token}/listo`,
+    });
+    expect(JSON.stringify(event)).not.toContain(token);
   });
 });

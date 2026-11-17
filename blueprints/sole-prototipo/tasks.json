@@ -1653,7 +1653,7 @@
       "app/src/app/api/v/[token]/listo/route.ts",
       "app/tests/db/cared-link.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E8-T4",

@@ -27,6 +27,7 @@ const ALL: NavItem[] = [
   { href: "/para-ti", label: "Para ti" },
   { href: "/informes", label: "Informes" },
   { href: "/contactos", label: "Contactos" },
+  { href: "/persona-cuidada", label: "Persona cuidada" },
   { href: "/avisos", label: "Avisos" },
   { href: "/cuenta", label: "Cuenta" },
   { href: "/pronto", label: "Próximamente" },
