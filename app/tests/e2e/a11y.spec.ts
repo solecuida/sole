@@ -1,5 +1,6 @@
 import type { Locator, Page } from "@playwright/test";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { recentChileTime } from "../support/clock";
 import { totp } from "../support/totp";
 import { type E2EUser, expect, test } from "./fixtures";
 
@@ -159,7 +160,12 @@ test("con círculo, todas las pantallas de la app cumplen en claro y en oscuro",
     kind: "custom",
     importance: "normal",
     title: "Almuerzo",
-    rule: { freq: "once", date: today, times: ["00:00"], startDate: today },
+    rule: {
+      freq: "once",
+      date: today,
+      times: [recentChileTime().time],
+      startDate: today,
+    },
   });
   expect(pending.error).toBeNull();
   await login(page, user);

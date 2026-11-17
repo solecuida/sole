@@ -12,7 +12,7 @@ const packageJson = JSON.parse(
 /** Contenido de una sección `## Título`, hasta el siguiente `## `. */
 function section(title: string): string {
   const lines = doc.split(/\r?\n/);
-  const start = lines.findIndex((line) => line === `## ${title}`);
+  const start = lines.indexOf(`## ${title}`);
   if (start === -1) {
     return "";
   }

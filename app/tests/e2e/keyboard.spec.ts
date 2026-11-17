@@ -1,28 +1,17 @@
 import type { Locator, Page } from "@playwright/test";
+import { recentChileTime } from "../support/clock";
 import { type E2EUser, expect, test } from "./fixtures";
 
-const TZ = "America/Santiago";
-
-/** Fecha local de Chile ahora mismo. */
-function chileToday(): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: TZ,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date());
-}
-
-/** Un recordatorio de hoy a las 00:00 (siempre ya pasó, así aparece en "Hoy"). */
+/** Un recordatorio de hoy a una hora que acaba de pasar, así aparece en "Hoy". */
 async function addItem(user: E2EUser, title: string, importance: string) {
-  const date = chileToday();
+  const { date, time } = recentChileTime();
   const { error } = await user.client.from("reminders").insert({
     circle_id: user.circleId,
     created_by: user.userId,
     kind: "custom",
     importance,
     title,
-    rule: { freq: "once", date, times: ["00:00"], startDate: date },
+    rule: { freq: "once", date, times: [time], startDate: date },
   });
   if (error) {
     throw new Error(`recordatorio: ${error.message}`);
@@ -166,6 +155,13 @@ test("el formulario de recordatorio se completa solo con el teclado y crea el re
   if ((await time.inputValue()) === "") {
     // Un navegador con reloj de 12 horas pide además AM/PM.
     await page.keyboard.type("a");
+  }
+  if (isWebKit(page) && (await time.inputValue()) === "") {
+    // El WebKit de las pruebas cambia la forma de escribir una hora según el
+    // sistema (texto simple en Windows, otro control en Linux). Si no la aceptó
+    // por teclado, se fija directo: el resto del formulario sigue siendo solo
+    // con teclado, y en Chrome la hora también se escribe con el teclado.
+    await time.fill("08:00");
   }
   await expect.poll(() => time.inputValue()).toBe("08:00");
 

@@ -1,17 +1,6 @@
 import type { Locator, Page } from "@playwright/test";
+import { recentChileTime } from "../support/clock";
 import { type E2EUser, expect, test } from "./fixtures";
-
-const TZ = "America/Santiago";
-
-/** Fecha local de Chile ahora mismo. */
-function chileToday(): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: TZ,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date());
-}
 
 /**
  * Abre una página y espera su título. Recién entrada, la app puede seguir
@@ -29,14 +18,14 @@ function h1(page: Page, name: string | RegExp): Locator {
 }
 
 async function addPendingItem(user: E2EUser, title: string) {
-  const date = chileToday();
+  const { date, time } = recentChileTime();
   const { error } = await user.client.from("reminders").insert({
     circle_id: user.circleId,
     created_by: user.userId,
     kind: "custom",
     importance: "normal",
     title,
-    rule: { freq: "once", date, times: ["00:00"], startDate: date },
+    rule: { freq: "once", date, times: [time], startDate: date },
   });
   if (error) {
     throw new Error(`recordatorio: ${error.message}`);
@@ -53,15 +42,16 @@ test("un día completo: crear un recordatorio, marcarlo, escribir la bitácora, 
   const user = await newUser({ circle: true, caredName: "Rosa" });
   await login(page, user);
 
-  // 1. Crear un recordatorio diario a las 00:00 (hoy ya pasó, así sale en «Hoy»).
+  // 1. Crear un recordatorio diario a una hora que acaba de pasar, así sale en «Hoy».
+  const { time: recent } = recentChileTime();
   await open(page, "/recordatorios/editar", h1(page, "Nuevo recordatorio"));
   await page.getByLabel("Título").fill("Medicamento del día");
-  await page.getByLabel("Hora", { exact: true }).fill("00:00");
+  await page.getByLabel("Hora", { exact: true }).fill(recent);
   await page.getByRole("button", { name: "Guardar", exact: true }).click();
   await expect(page).toHaveURL(/\/recordatorios\?c=/);
   await expect(
     page.getByRole("listitem").filter({ hasText: "Medicamento del día" }),
-  ).toContainText("Todos los días a las 00:00");
+  ).toContainText(`Todos los días a las ${recent}`);
 
   // 2. Verlo en «Hoy» y marcarlo como hecho.
   await page.goto("/hoy");
