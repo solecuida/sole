@@ -114,6 +114,13 @@ Estas tres son del formulario de contacto de la web (`solecuida.com`) y solo se 
 - [ ] `WEB_CONTACT_SUPABASE_SECRET_KEY`: del mismo panel, API Keys, la clave secreta de `sole-web`. Es secreta y nunca llega al navegador.
 - [ ] `WEB_ALLOWED_ORIGINS`: escribe a mano `https://solecuida.com,https://www.solecuida.com` (sin espacios). No es un secreto.
 
+### Pasar el formulario de la web a la app (después del primer despliegue)
+
+Hoy el formulario de `solecuida.com` sigue escribiendo directo en `sole-web`, para no caerse antes de que exista la app. Cuando `https://app.solecuida.com/api/health` responda, se cambia de camino:
+
+- [ ] En `web/assets/config.js`: pon `contactEndpoint: "https://app.solecuida.com/api/web/contact"` y en `turnstileSiteKey` la «Site Key» de Turnstile (es pública). Borra las líneas `supabaseUrl` y `supabaseKey`. Pídele a Claude que haga este cambio y lo publique. Cómo saber que quedó bien: en `solecuida.com/contacto.html` aparece la casilla de verificación de Cloudflare y un envío de prueba llega a la tabla `contactos` de `sole-web`.
+- [ ] En el panel de `sole-web` (SQL Editor), retira la política que deja insertar sin sesión en `contactos`. Pide el comando exacto a Claude y revísalo antes de correrlo `[VERIFICAR]` el nombre de la política. Cómo saber que quedó bien: un envío directo con la clave publishable responde error, y uno desde el formulario sigue llegando.
+
 ### Revisar que está todo
 
 - [ ] Vercel → Project → Settings → Environment Variables: cuenta 20 nombres de producción (todos los de `app/.env.example` salvo `FIELD_ENCRYPTION_KEY_PREVIOUS`). Cómo saber que quedó bien: los 20 aparecen con valor oculto y ninguno sin ambiente Production.
