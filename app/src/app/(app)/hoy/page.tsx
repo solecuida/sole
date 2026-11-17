@@ -132,15 +132,18 @@ export default async function TodayPage({
   // Lo que se guarda en el teléfono para ver "Hoy" sin señal: sin el nombre ni
   // la indicación de los medicamentos.
   const strip = (items: (typeof today.groups)["normal"]) =>
-    items.map((item) => ({
-      id: item.id,
-      title: item.title,
-      time: item.time,
-      status: item.status,
-      overdue: item.overdue,
-      notDoneReason: item.notDoneReason,
-      snoozedUntil: item.snoozedUntil,
-    }));
+    items
+      // Las tareas no se marcan desde "Hoy": no van a la copia sin conexión.
+      .filter((item) => item.source === "reminder")
+      .map((item) => ({
+        id: item.id,
+        title: item.title,
+        time: item.time,
+        status: item.status,
+        overdue: item.overdue,
+        notDoneReason: item.notDoneReason,
+        snoozedUntil: item.snoozedUntil,
+      }));
   const snapshot = {
     circleId: today.circleId,
     caredName: today.caredName,
@@ -251,9 +254,28 @@ export default async function TodayPage({
               {IMPORTANCE_LABELS[importance]}
             </h2>
             <ul className="flex flex-col gap-3">
-              {items.map((item) => (
-                <OccurrenceItem key={`${item.id}-${item.status}`} item={item} />
-              ))}
+              {items.map((item) =>
+                item.source === "task" ? (
+                  <li
+                    key={item.id}
+                    className="flex flex-col gap-2 rounded-card border border-border bg-surface p-4"
+                  >
+                    <p className="text-base text-fg-muted">Tarea</p>
+                    <p className="text-lg font-bold">{item.title}</p>
+                    <Link
+                      href={`/tareas?c=${today.circleId}`}
+                      className="inline-flex min-h-12 items-center font-bold"
+                    >
+                      Ver en Tareas
+                    </Link>
+                  </li>
+                ) : (
+                  <OccurrenceItem
+                    key={`${item.id}-${item.status}`}
+                    item={item}
+                  />
+                ),
+              )}
             </ul>
           </section>
         );

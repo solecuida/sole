@@ -11,6 +11,7 @@ import {
   zonedInstant,
 } from "@/server/reminders/recurrence";
 import { ruleSchema } from "@/server/reminders/rule-schema";
+import { todayTasks } from "@/server/tasks/tasks";
 
 type Client = SupabaseClient<Database>;
 type Enums = Database["public"]["Enums"];
@@ -19,6 +20,11 @@ const DAY = 86_400_000;
 const UPCOMING_DAYS = 7;
 
 export interface TodayItem {
+  /**
+   * De dónde sale: un recordatorio (se marca hecho, no hecho o pospuesto) o una
+   * tarea sin hora que la cuidadora pasó a hoy (se gestiona en "Tareas").
+   */
+  source: "reminder" | "task";
   id: string;
   reminderId: string;
   title: string;
@@ -126,7 +132,7 @@ export async function getToday(
     await materializeOccurrences(admin, { now, circleIds: [circleId] });
   }
 
-  const [day, week, reminders] = await Promise.all([
+  const [day, week, reminders, tasks] = await Promise.all([
     client
       .from("reminder_occurrences")
       .select(
@@ -152,6 +158,7 @@ export async function getToday(
       .eq("active", true)
       .in("kind", [...KINDS_WITH_ADVANCE])
       .limit(200),
+    todayTasks(client, circleId, today),
   ]);
 
   const groups: TodayData["groups"] = {
@@ -161,6 +168,7 @@ export async function getToday(
   };
   for (const row of day.data ?? []) {
     const item: TodayItem = {
+      source: "reminder",
       id: row.id,
       reminderId: row.reminder_id,
       title: row.reminder.title,
@@ -180,6 +188,25 @@ export async function getToday(
       ),
     };
     groups[item.importance].push(item);
+  }
+  // Las tareas pasadas a hoy van al final de "Cuando puedas". No tienen hora ni
+  // cuentan en el avance del día, que mide solo los recordatorios.
+  for (const task of tasks) {
+    groups.whenever.push({
+      source: "task",
+      id: task.id,
+      reminderId: "",
+      title: task.title,
+      kind: "custom",
+      importance: "whenever",
+      time: "",
+      eventAt: "",
+      status: "pending",
+      overdue: false,
+      notDoneReason: null,
+      snoozedUntil: null,
+      detail: null,
+    });
   }
 
   // Próximos días: controles, trámites y fechas, desde mañana.

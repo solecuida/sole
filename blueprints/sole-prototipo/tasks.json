@@ -1593,7 +1593,7 @@
       "app/src/server/today/today.ts",
       "app/tests/db/tasks.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E8-T2",
