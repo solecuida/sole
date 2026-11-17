@@ -687,3 +687,90 @@ strong { font-weight: 600; }
     transition-duration: 0.001ms !important;
   }
 }
+
+/* ==========================================================================
+   Paso 60 — CTA principal, compartir y pie v2.
+   Solo variables de color existentes: sin colores fijos.
+   ========================================================================== */
+
+.cta-principal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6em;
+  min-height: 3rem;
+  background: var(--acento);
+  color: var(--papel);
+  font-family: var(--maquina);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 0.85rem 1.7rem;
+  border: 1px solid var(--acento);
+  border-radius: 2px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.cta-principal:hover { background: var(--tinta); border-color: var(--tinta); color: var(--papel); }
+.cta-principal:focus-visible { outline-color: var(--tinta); outline-offset: 3px; }
+
+/* En pantallas angostas la CTA queda fija abajo. No flota sobre el contenido:
+   el cuerpo reserva su espacio con padding inferior, y scroll-padding evita que
+   el elemento enfocado quede detrás de ella. */
+@media (max-width: 39.99rem) {
+  body:has(.cta-principal) { padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)); }
+  html:has(.cta-principal) { scroll-padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px)); }
+
+  .cta-principal {
+    position: fixed;
+    left: 1rem;
+    right: 1rem;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    z-index: 100;
+    min-height: 3.25rem;
+    border-color: var(--papel);
+  }
+}
+
+.compartir {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  min-height: 3rem;
+  background: transparent;
+  color: var(--tinta);
+  font-family: var(--maquina);
+  font-size: 0.87rem;
+  padding: 0.7rem 1.2rem;
+  border: 1px solid var(--linea-fuerte);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.compartir:hover { color: var(--acento); border-color: var(--acento); }
+
+.compartir__estado {
+  display: inline-block;
+  min-height: 1.2em;
+  font-family: var(--maquina);
+  font-size: 0.8rem;
+  color: var(--tinta-suave);
+  margin-left: 0.6rem;
+}
+
+/* Pie v2: suma una fila con los textos legales. */
+.pie[data-pie="v2"] .pie__legal-enlaces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.4rem;
+  list-style: none;
+  margin: 0 0 0.9rem;
+  padding: 0;
+}
+.pie[data-pie="v2"] .pie__legal-enlaces a { text-decoration: underline; text-decoration-color: var(--linea-fuerte); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .cta-principal, .compartir { transition: none; }
+}
