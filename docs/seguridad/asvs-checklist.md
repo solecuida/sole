@@ -26,7 +26,7 @@ La lista de 30 puntos del brief, con su evidencia, está en `docs/seguridad/chec
 | Control de acceso: sin cambio de campos protegidos (rol, dueño, admin) | L1 | Cumple | `app/supabase/migrations/20261114000100_base.sql` (privilegios por columna), `app/tests/db/rls-circles.test.ts` |
 | Control de acceso: rol de administrador no concedible desde la app | L2 | Cumple | `app/supabase/tests/database.test.sql`, `app/tests/db/admin-access.test.ts` |
 | Control de acceso: el panel de administración no lee datos de cuidado | L2 | Cumple | `app/tests/db/admin-access.test.ts` (un admin con `aal2` no ve círculos, bitácoras ni bienestar ajenos) |
-| Control de acceso: tokens de enlace largos, revocables y con vencimiento | L2 | Pendiente | Lista de lanzamiento: el enlace de la persona cuidada es de una fase posterior; solo existe la tabla `cared_links` en `app/supabase/migrations/20261114000100_base.sql` |
+| Control de acceso: tokens de enlace largos, revocables y con vencimiento | L2 | Cumple | Enlace de 256 bits guardado solo como huella, con vencimiento a 90 días y revocación inmediata; todo queda atado al círculo del enlace. `app/src/server/cared-link/links.ts`, `app/tests/db/cared-link.test.ts`, `app/tests/e2e/cared-view.spec.ts` |
 | Validación: toda entrada validada con esquema en el servidor | L1 | Cumple | `app/src/server/auth/login.ts`, `app/src/server/reminders/rule-schema.ts`, `app/src/app/api/cuenta/exportar/route.ts` (zod) |
 | Validación: restricciones en la base (largo, valores permitidos) | L1 | Cumple | `app/supabase/migrations/20261114000200_cuidado.sql` (restricciones `check`) |
 | Validación: consultas parametrizadas, sin SQL armado con texto | L1 | Cumple | `app/supabase/migrations/20261114000200_cuidado.sql` (RPC sin SQL dinámico) |
@@ -57,6 +57,6 @@ La lista de 30 puntos del brief, con su evidencia, está en `docs/seguridad/chec
 | Configuración: sin subida de archivos | L1 | Cumple | `app/supabase/config.toml` (`[storage] enabled = false`) |
 | Configuración: pruebas dinámicas contra lo desplegado (ZAP) | L2 | Pendiente | Lista de lanzamiento: ZAP baseline; su flujo llega en la épica 07 |
 | Configuración: respaldos cifrados y restauración probada | L2 | Pendiente | Lista de lanzamiento: respaldo nocturno cifrado y simulacro; su flujo llega en la épica 07 |
-| Lógica de negocio: límites de frecuencia en operaciones sensibles | L2 | Pendiente | `app/src/server/security/rate-limit.ts`; faltan conectar `invitation`, `emergency` y `cared_done` |
+| Lógica de negocio: límites de frecuencia en operaciones sensibles | L2 | Pendiente | Conectados y probados: ingreso, comentarios, prueba de avisos, «Listo» desde el enlace y botón de emergencia (`app/src/server/security/rate-limit.ts`, `app/src/server/cared-link/emergency.ts`, `app/tests/db/emergency.test.ts`). Faltan `invitation` (fase 8) y `web_contact` (fase 7) |
 | Archivos y recursos: carga de archivos | L1 | No aplica | No hay subida de archivos en esta versión (`app/supabase/config.toml`, `[storage] enabled = false`) |
 | API y servicios web: rutas de cron autenticadas con secreto | L2 | Cumple | `app/src/server/security/cron-auth.ts`, `app/src/app/api/cron/dispatch/route.ts` |

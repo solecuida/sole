@@ -1,6 +1,6 @@
 # Pendientes
 
-Estado: fase 5 (despliegue) cerrada en código el 2026-11-16 · pasos 1 a 53 de 70 con su etiqueta `step-NN` · sigue el paso 54 (`E8-T1`), primero de la fase 6. Falta la parte del fundador: seguir `docs/lanzamiento.md`. Los encargos de los pasos 54 a 65 están en `blueprints/sole-prototipo/encargos-pasos-50-65.md`.
+Estado: fase 6 (ampliación) cerrada el 2026-11-16 · pasos 1 a 59 de 70 con su etiqueta `step-NN` · sigue el paso 60 (`E9-T1`), primero de la fase 7 (sitio web y organizaciones). Falta la parte del fundador de la fase 5: seguir `docs/lanzamiento.md` (las cuentas ya están creadas). Los encargos de los pasos 60 a 65 están en `blueprints/sole-prototipo/encargos-pasos-50-65.md`.
 
 **Cómo retomar:** abre `blueprints/sole-prototipo/tasks.json`, busca la primera tarea con `"status": "pending"` y sigue su bloque en `blueprints/sole-prototipo/epics/`. Antes, en Git Bash desde la raíz del repo: abre Docker Desktop, `export PATH="$HOME/.local:$HOME/.local/bin:$PATH"` y `pnpm -C app db:start`.
 

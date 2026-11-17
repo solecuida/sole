@@ -8,7 +8,7 @@ Cada sección dice qué está comprobado y qué queda pendiente. Lo que solo se 
 
 - **Control.** RLS en todas las tablas de `public`; privilegios por columna; rol de administrador solo por SQL manual y con segundo factor; autorización dentro de cada acción y ruta, además del proxy.
 - **Prueba.** `app/supabase/tests/database.test.sql` (cero tablas sin RLS; `is_admin` no se puede actualizar), `app/tests/db/rls-circles.test.ts` (una cuidadora ajena y un familiar no ven ni tocan lo de otro círculo), `app/tests/db/rls-private.test.ts`, `app/tests/db/admin-access.test.ts` (el panel no lee datos de cuidado), `app/tests/e2e/auth.spec.ts`.
-- **Pendiente.** El enlace de la persona cuidada llega en una fase posterior (Lista de lanzamiento: sus pruebas de permisos mínimos).
+- **Enlace de la persona cuidada (2026-11-16).** Acceso sin cuenta, acotado al círculo del enlace y a lo marcado como visible: `app/src/server/cared-link/links.ts`, `app/tests/db/cared-link.test.ts`, `app/tests/e2e/cared-view.spec.ts`.
 
 ## A02 Fallas criptográficas
 
@@ -26,7 +26,7 @@ Cada sección dice qué está comprobado y qué queda pendiente. Lo que solo se 
 
 - **Control.** Modelo de amenazas, evaluación de impacto y minimización: la investigación usa seudónimo y exige consentimiento; el panel no puede leer datos de cuidado; el navegador nunca habla con Supabase.
 - **Prueba.** `docs/seguridad/modelo-amenazas.md`, `docs/legal/eipd.md`, `app/tests/db/events.test.ts`, `app/tests/db/admin-access.test.ts`, `app/tests/db/consents.test.ts`.
-- **Pendiente.** Revisar el modelo de amenazas cuando se construyan el enlace de la persona cuidada y el botón de emergencia.
+- **Revisado el 2026-11-16** al construir el enlace de la persona cuidada y el botón de emergencia: `docs/seguridad/modelo-amenazas.md`.
 
 ## A05 Configuración de seguridad incorrecta
 

@@ -1707,7 +1707,7 @@
       "app/src/components/cared/emergency-button.tsx",
       "app/tests/e2e/cared-view.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E8-T6",
