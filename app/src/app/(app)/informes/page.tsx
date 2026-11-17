@@ -125,6 +125,9 @@ export default async function ReportsPage({
         <Link href={link(period, "/informes/imprimir")} className={neutral}>
           Versión para imprimir
         </Link>
+        <Link href={`/informes/medico?c=${circle.id}`} className={neutral}>
+          Informe para el médico · Premium, gratis durante el piloto
+        </Link>
       </section>
     </>
   );
