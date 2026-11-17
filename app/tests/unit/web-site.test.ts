@@ -46,7 +46,7 @@ const plain = (value: string) =>
 // Existen solo en Vercel o son opcionales por diseño.
 const excepciones = new Set([
   "_vercel/insights/script.js",
-  "assets/retrato.jpg",
+  "assets/retrato.webp",
 ]);
 
 describe("web: títulos, descripciones y h1", () => {
@@ -162,8 +162,7 @@ describe("web: sitemap.xml", () => {
 });
 
 describe("web: pie v2", () => {
-  // Solo las páginas que ya traen data-pie="v2" (las demás cambian en los
-  // pasos 61 a 63, cuando se les agrega el pie nuevo).
+  // Revisa las páginas que traen data-pie="v2"; abajo se exige que sean todas.
   const withPie = pages.filter((page) =>
     /data-pie="v2"/.test(html.get(page) ?? ""),
   );
@@ -192,5 +191,119 @@ describe("web: pie v2", () => {
     const file = path.join(webDir, "favicon.svg");
     expect(statSync(file).size).toBeGreaterThan(0);
     expect(readFileSync(file, "utf8")).toContain("<svg");
+  });
+
+  it("todas las páginas llevan el pie v2", () => {
+    const sin = pages.filter(
+      (page) => !/data-pie="v2"/.test(html.get(page) ?? ""),
+    );
+    expect(
+      sin,
+      `Estas páginas no tienen data-pie="v2" (pie nuevo con textos legales): ${sin.join(", ")}`,
+    ).toEqual([]);
+  });
+});
+
+describe("web: datos estructurados", () => {
+  const jsonLd = (page: string) =>
+    [
+      ...(html.get(page) ?? "").matchAll(
+        /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g,
+      ),
+    ].map((match) => match[1] ?? "");
+
+  it("index.html declara Organization y WebSite en JSON-LD válido", () => {
+    const blocks = jsonLd("index.html");
+    expect(blocks.length).toBeGreaterThan(0);
+    for (const block of blocks) expect(() => JSON.parse(block)).not.toThrow();
+    const all = blocks.join(" ");
+    expect(all).toMatch(/"@type":\s*"Organization"/);
+    expect(all).toMatch(/"@type":\s*"WebSite"/);
+  });
+
+  it("probar.html declara FAQPage en JSON-LD válido", () => {
+    const blocks = jsonLd("probar.html");
+    expect(blocks.length).toBeGreaterThan(0);
+    for (const block of blocks) expect(() => JSON.parse(block)).not.toThrow();
+    expect(blocks.join(" ")).toMatch(/"@type":\s*"FAQPage"/);
+  });
+});
+
+describe("web: imágenes", () => {
+  it("todo <img> tiene alt, width, height y un src .webp, .avif o .svg", () => {
+    const problemas: string[] = [];
+    for (const page of pages) {
+      for (const match of (html.get(page) ?? "").matchAll(/<img\b[^>]*>/gi)) {
+        const tag = match[0];
+        for (const attr of ["alt", "width", "height"]) {
+          if (!new RegExp(`\\s${attr}="`, "i").test(tag)) {
+            problemas.push(`${page}: <img> sin ${attr}`);
+          }
+        }
+        const src = /\ssrc="([^"]*)"/i.exec(tag)?.[1] ?? "";
+        if (!/\.(webp|avif|svg)$/i.test(src.split("?")[0] ?? "")) {
+          problemas.push(`${page}: src "${src}" no es .webp, .avif ni .svg`);
+        }
+      }
+    }
+    expect(problemas).toEqual([]);
+  });
+
+  it("ninguna imagen raster de web/ pesa 200 KB o más (salvo la portada social)", () => {
+    const pesadas = walk(webDir)
+      .filter((file) => /\.(png|jpe?g)$/i.test(file))
+      .filter(
+        (file) =>
+          path.relative(webDir, file).replaceAll("\\", "/") !==
+          "assets/portada-social.png",
+      )
+      .filter((file) => statSync(file).size >= 200 * 1024)
+      .map((file) => path.relative(webDir, file));
+    expect(pesadas).toEqual([]);
+  });
+});
+
+describe("web: llamada a la acción", () => {
+  const ctas = (page: string) =>
+    [
+      ...(html.get(page) ?? "").matchAll(
+        /class="(?:[^"]* )?cta-principal(?: [^"]*)?"/g,
+      ),
+    ].length;
+
+  it("ninguna página tiene más de un .cta-principal", () => {
+    for (const page of pages) {
+      expect(
+        ctas(page),
+        `${page}: más de un .cta-principal`,
+      ).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it("index.html y probar.html tienen exactamente uno", () => {
+    expect(ctas("index.html")).toBe(1);
+    expect(ctas("probar.html")).toBe(1);
+  });
+
+  it("la CTA de probar.html lleva a la app", () => {
+    expect(html.get("probar.html")).toMatch(
+      /<a class="cta-principal" href="https:\/\/app\.solecuida\.com\/">/,
+    );
+  });
+});
+
+describe("web: sitemap con las páginas nuevas", () => {
+  const sitemap = readFileSync(path.join(webDir, "sitemap.xml"), "utf8");
+
+  it("lista probar, términos y cookies", () => {
+    for (const page of ["probar.html", "terminos.html", "cookies.html"]) {
+      expect(sitemap, page).toContain(`/${page}</loc>`);
+    }
+  });
+
+  it("términos y cookies ya no son noindex", () => {
+    for (const page of ["terminos.html", "cookies.html"]) {
+      expect(html.get(page) ?? "", page).not.toMatch(/noindex/i);
+    }
   });
 });

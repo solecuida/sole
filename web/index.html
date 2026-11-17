@@ -3,26 +3,52 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sole — escuchar antes de construir</title>
-<meta name="description" content="Sole es una investigación en curso sobre lo que viven las personas que cuidan en casa a un familiar en Chile. Todavía no hay producto: hay conversaciones.">
+<title>Sole — construir escuchando a quien cuida</title>
+<meta name="description" content="Sole es una aplicación gratuita, todavía un prototipo en piloto, para quien cuida en casa a un familiar en Chile. La estoy probando con personas reales.">
 <meta name="author" content="José Carrillo García">
 <link rel="canonical" href="https://www.solecuida.com/">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="es_CL">
 <meta property="og:site_name" content="Sole">
 <meta property="og:url" content="https://www.solecuida.com/">
-<meta property="og:title" content="Sole — escuchar antes de construir">
-<meta property="og:description" content="Una investigación sobre lo que carga quien cuida a un familiar en Chile. No hay app, no hay cobro: hay conversaciones.">
+<meta property="og:title" content="Sole — construir escuchando a quien cuida">
+<meta property="og:description" content="Una aplicación gratuita, en piloto, para quien cuida a un familiar en Chile. Nació de escuchar a quienes cuidan.">
 <meta property="og:image" content="https://www.solecuida.com/assets/portada-social.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Sole — en reconocimiento a quien cuida">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%239c5b34'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' fill='%23faf6ef' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Courier+Prime:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..500&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/estilo.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://www.solecuida.com/#organizacion",
+      "name": "Sole",
+      "url": "https://www.solecuida.com/",
+      "logo": "https://www.solecuida.com/favicon.svg",
+      "email": "hola@solecuida.com",
+      "founder": { "@type": "Person", "name": "José Carrillo García" },
+      "areaServed": "CL",
+      "description": "Aplicación gratuita, en piloto, para personas que cuidan en casa a un familiar en Chile."
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://www.solecuida.com/#sitio",
+      "name": "Sole",
+      "url": "https://www.solecuida.com/",
+      "inLanguage": "es-CL",
+      "publisher": { "@id": "https://www.solecuida.com/#organizacion" }
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -36,6 +62,7 @@
     </a>
     <nav class="navegacion" aria-label="Principal">
       <a href="index.html" aria-current="page">La carta</a>
+      <a href="probar.html">Cómo probar Sole</a>
       <a href="organizaciones.html">Para organizaciones</a>
       <a href="privacidad.html">Privacidad y límites</a>
       <a href="contacto.html">Conversemos</a>
@@ -47,10 +74,10 @@
 
   <div class="pagina">
     <div class="encabezado lectura">
-      <p class="epigrafe entra">Investigación en curso &middot; Chile &middot; 2026</p>
+      <p class="epigrafe entra">Piloto en curso &middot; Chile &middot; 2026</p>
       <h1 class="entra">Sole fue la que cuidó.</h1>
-      <p class="bajada entra">Este proyecto lleva su nombre y todavía no es un producto. Es un año dedicado a escuchar: a las familias que cuidan en casa, a los profesionales que las atienden y a las organizaciones que las acompañan en Chile.</p>
-      <p class="fecha-lugar entra">Renca, Santiago &middot; 25 de septiembre de 2026</p>
+      <p class="bajada entra">Este proyecto lleva su nombre. Es una aplicación gratuita, todavía un prototipo, para quien cuida en casa a un familiar. Nació de un año dedicado a escuchar a las familias, a los profesionales y a las organizaciones que las acompañan en Chile, y hoy la estoy probando con personas reales.</p>
+      <p class="fecha-lugar entra">Renca, Santiago &middot; 17 de noviembre de 2026</p>
     </div>
   </div>
 
@@ -58,6 +85,11 @@
     <article class="carta carta--epistola lectura">
 
       <p>A mi mamá le decíamos <em>la Nonó</em>. Se llamaba Dinora García, tuvo Alzheimer y estuvo enferma muchos años.</p>
+
+      <div class="acciones">
+        <a class="cta-principal" href="probar.html">Probar Sole</a>
+        <span class="pequeno tenue">Es gratuita y está en piloto.</span>
+      </div>
 
       <p>La enfermedad no se quedó en la memoria. Con el tiempo le fue ganando terreno a todo lo demás, y en esos años mi familia hizo lo que hacen casi todas: arreglárselas como pudo, cada uno a su manera y casi siempre sin saber si lo estaba haciendo bien.</p>
 
@@ -71,7 +103,9 @@
 
       <h2>Lo que estoy haciendo este año</h2>
 
-      <p>Estoy conversando con personas que cuidan en Chile. Con profesionales de salud. Con organizaciones y centros que acompañan a familias. Conversaciones de treinta o cuarenta minutos, confidenciales, sobre cómo es realmente el día a día: cómo se reparte el cuidado entre hermanos, qué se anota y qué se olvida, qué es lo que de verdad quita el sueño.</p>
+      <p>Empecé escuchando. En ese mismo contexto, con esas conversaciones de fondo, decidí construir Sole: una aplicación para llevar el cuidado de todos los días. Hoy la estoy probando con personas reales.</p>
+
+      <p>Sigo conversando con personas que cuidan en Chile. Con profesionales de salud. Con organizaciones y centros que acompañan a familias. Conversaciones de treinta o cuarenta minutos, confidenciales, sobre cómo es realmente el día a día: cómo se reparte el cuidado entre hermanos, qué se anota y qué se olvida, qué es lo que de verdad quita el sueño.</p>
 
       <p>Vengo del Alzheimer, y por eso muchas de estas conversaciones son con familias que acompañan a alguien con demencia. Pero no solo: quien cuida a un papá después de un accidente cerebrovascular, o a un hijo con una discapacidad severa, o a una pareja que ya no se puede levantar sola, reconoce casi todo de lo mismo.</p>
 
@@ -79,7 +113,7 @@
         <p><b>Cómo son las conversaciones.</b> No hay encuesta ni guion rígido. Pregunto por lo que ya viviste: cómo fue el último mes, qué hiciste, qué te resultó y qué no.</p>
       </aside>
 
-      <p>No estoy mostrando un producto en esas conversaciones, porque no existe. No hay aplicación, no hay lista de espera, no hay nada que comprar y no le estoy vendiendo nada a nadie. Si algún día existe algo, va a existir porque estas conversaciones lo justificaron. Y si no lo justifican, no va a existir — eso también sería un resultado, y uno bueno.</p>
+      <p>Sole ya existe, pero es un prototipo: puede fallar y le falta mucho. Es gratuita, no hay nada que comprar y no le estoy vendiendo nada a nadie. Si estas conversaciones y las pruebas muestran que no sirve, lo voy a decir — eso también sería un resultado, y uno bueno.</p>
 
       <p>Lo digo así de directo porque en este tema abunda lo contrario: soluciones tecnológicas diseñadas por gente que nunca cuidó a nadie, prometiendo cosas que ningún software puede prometer.</p>
 
@@ -132,17 +166,17 @@
       <h2>Cuatro compromisos, desde ahora</h2>
 
       <ul class="compromisos">
-        <li>Nunca voy a decir que esto detecta, diagnostica o predice nada. No es un dispositivo médico y no reemplaza a tu equipo de salud.</li>
+        <li>Nunca voy a decir que esto detecta, diagnostica o predice nada. No es un dispositivo médico y no reemplaza a tu equipo de salud ni a un servicio de emergencia.</li>
         <li>Nada de lo que me cuentes se publica con tu nombre, y no se graba nada sin que me lo autorices.</li>
         <li>No te voy a agregar a ninguna lista de difusión ni a venderle tus datos a nadie.</li>
-        <li>Si esto alguna vez se convierte en un producto, va a ser gratuito para las familias que acompañan las organizaciones que hoy me abren la puerta.</li>
+        <li>Sole es gratuita. Si algún día tuviera costo para alguien, no lo tendría para las familias que acompañan las organizaciones que hoy me abren la puerta.</li>
       </ul>
 
       <p class="pequeno tenue">Todo esto, con sus detalles y sus límites, está escrito en <a href="privacidad.html">privacidad y límites</a>.</p>
 
-      <h2>Mientras tanto, esto ya existe</h2>
+      <h2>Además, esto ya existe</h2>
 
-      <p>Si llegaste hasta acá porque estás cuidando a alguien y necesitas algo <em>hoy</em>, esto no te lo puedo dar yo, pero existe y es público:</p>
+      <p>Si llegaste hasta acá porque estás cuidando a alguien y necesitas algo <em>hoy</em>, hay ayuda que no depende de mí, que existe y es pública:</p>
 
       <ul class="recursos">
         <li>
@@ -160,9 +194,10 @@
       </ul>
 
       <div class="firma">
-        <img class="firma__retrato" src="assets/retrato.jpg" alt="Retrato de José Carrillo García" onerror="this.remove()">
+        <img class="firma__retrato" src="assets/retrato.webp" alt="Retrato de José Carrillo García" width="400" height="400" onerror="this.remove()">
         <div class="firma__texto">
           <p class="pequeno tenue">Gracias por leer hasta acá.</p>
+          <p><button type="button" class="compartir" data-compartir>Compartir esta carta</button><span class="compartir__estado" role="status" aria-live="polite" data-compartir-estado></span></p>
           <span class="firma__rubrica">José Carrillo García</span>
           <svg class="firma__trazo" viewBox="0 0 190 12" aria-hidden="true"><path d="M2 8.5C28 4.2 63 2.4 96 3.6c31 1.1 60 4 92 1.4"/></svg>
           <p class="firma__pie">
@@ -177,16 +212,17 @@
 
 </main>
 
-<footer class="pie">
+<footer class="pie" data-pie="v2">
   <div class="pie__rejilla">
     <div>
       <h4>Sole</h4>
-      <p>Investigación sobre lo que viven las personas que cuidan en casa a un familiar en Chile. Escuchar antes de construir.</p>
+      <p>Una aplicación gratuita, en piloto, para quien cuida en casa a un familiar en Chile. Nació de escuchar antes de construir.</p>
     </div>
     <div>
       <h4>Páginas</h4>
       <ul>
         <li><a href="index.html">La carta</a></li>
+        <li><a href="probar.html">Cómo probar Sole</a></li>
         <li><a href="organizaciones.html">Para organizaciones</a></li>
         <li><a href="privacidad.html">Privacidad y límites</a></li>
         <li><a href="contacto.html">Conversemos</a></li>
@@ -199,6 +235,11 @@
       </ul>
     </div>
   </div>
+  <ul class="pie__legal-enlaces">
+    <li><a href="privacidad.html">Privacidad</a></li>
+    <li><a href="terminos.html">Términos</a></li>
+    <li><a href="cookies.html">Cookies</a></li>
+  </ul>
   <p class="pie__legal">
     Sole no es una empresa constituida, no ofrece servicios de salud y no vende ningún producto.
     Si estás frente a una urgencia médica, llama al <strong>131</strong> (SAMU).
@@ -207,6 +248,7 @@
 
 <!-- Analitica sin cookies (Vercel Web Analytics): cuenta visitas, no personas.
      No requiere aviso de cookies porque no escribe ninguna. Ver privacidad.html -->
+<script defer src="assets/compartir.js"></script>
 <script defer src="/_vercel/insights/script.js"></script>
 
 </body>
