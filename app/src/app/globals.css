@@ -1,0 +1,148 @@
+@import "tailwindcss";
+
+/* Variables de diseño de Sole. Mismos valores que src/lib/design/tokens.ts
+   (una prueba lo exige). Los componentes usan nombres de token, nunca hex. */
+:root {
+  --background: #faf6ef;
+  --surface: #f4ede1;
+  --fg: #241f1a;
+  --fg-muted: #5f5548;
+  --fg-subtle: #726556;
+  --primary: #9c5b34;
+  --primary-fg: #ffffff;
+  --primary-hover: #84492a;
+  --border: #e3d9c9;
+  --border-strong: #726556;
+  --focus: #9c5b34;
+  --success: #2f6b3a;
+  --warning: #7a5200;
+  --danger: #a3312b;
+  --info: #2b5a86;
+  --success-bg: #e6f1e7;
+  --warning-bg: #f8ecd2;
+  --danger-bg: #f8e3e0;
+  --info-bg: #e2ecf5;
+
+  --radius-control: 0.75rem;
+  --radius-card: 1rem;
+  --shadow-dialog: 0 8px 24px rgb(0 0 0 / 0.18);
+  --content-width: 40rem;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #16120e;
+    --surface: #1e1913;
+    --fg: #f0e8dc;
+    --fg-muted: #b6a894;
+    --fg-subtle: #9c8e7c;
+    --primary: #dc9264;
+    --primary-fg: #16120e;
+    --primary-hover: #eaad84;
+    --border: #322a20;
+    --border-strong: #9c8e7c;
+    --focus: #dc9264;
+    --success: #86c793;
+    --warning: #e5b764;
+    --danger: #f2958a;
+    --info: #93bde8;
+    --success-bg: #1b2a1d;
+    --warning-bg: #2c2414;
+    --danger-bg: #2f1b18;
+    --info-bg: #18232f;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-primary: var(--primary);
+  --color-primary-fg: var(--primary-fg);
+  --color-primary-hover: var(--primary-hover);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-focus: var(--focus);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+  --color-success-bg: var(--success-bg);
+  --color-warning-bg: var(--warning-bg);
+  --color-danger-bg: var(--danger-bg);
+  --color-info-bg: var(--info-bg);
+
+  --font-sans:
+    var(--font-atkinson), system-ui, -apple-system, "Segoe UI", Roboto,
+    sans-serif;
+  --font-mono: ui-monospace, monospace;
+
+  --radius-control: var(--radius-control);
+  --radius-card: var(--radius-card);
+  --shadow-dialog: var(--shadow-dialog);
+  --container-content: var(--content-width);
+}
+
+/* Base de 18 px: el público lee mejor con letra grande. */
+html {
+  font-size: 112.5%;
+}
+
+body {
+  background: var(--background);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+}
+
+/* En la capa base: así las clases (text-fg, no-underline) pueden cambiarlo.
+   Los enlaces van subrayados para no distinguirse solo por color. */
+@layer base {
+  a {
+    color: var(--primary);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* "Saltar al contenido": invisible hasta que recibe el foco del teclado. */
+.skip-link {
+  position: absolute;
+  left: 0.5rem;
+  top: 0.5rem;
+  z-index: 50;
+  transform: translateY(-200%);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--fg);
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    /* biome-ignore lint/complexity/noImportantStyles: debe ganarle a cualquier utilidad para respetar "reducir movimiento" */
+    animation-duration: 0.01ms !important;
+    /* biome-ignore lint/complexity/noImportantStyles: debe ganarle a cualquier utilidad para respetar "reducir movimiento" */
+    animation-iteration-count: 1 !important;
+    /* biome-ignore lint/complexity/noImportantStyles: debe ganarle a cualquier utilidad para respetar "reducir movimiento" */
+    transition-duration: 0.01ms !important;
+    /* biome-ignore lint/complexity/noImportantStyles: debe ganarle a cualquier utilidad para respetar "reducir movimiento" */
+    scroll-behavior: auto !important;
+  }
+}

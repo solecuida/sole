@@ -1,0 +1,77 @@
+name: backup
+
+# Respaldo diario de la base de producción, cifrado con age antes de salir
+# del runner. Solo se sube el archivo .age: la clave privada la guarda el
+# fundador fuera de línea y nunca está en el repositorio.
+on:
+  schedule:
+    - cron: "30 6 * * *" # UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backup
+  cancel-in-progress: false
+
+jobs:
+  respaldo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Comprobar que están los secretos
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          AGE_PUBLIC_KEY: ${{ secrets.AGE_PUBLIC_KEY }}
+        run: |
+          set +x
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "::error::Falta el secreto SUPABASE_DB_URL (conexión de producción). Créalo en Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          if [ -z "$AGE_PUBLIC_KEY" ]; then
+            echo "::error::Falta el secreto AGE_PUBLIC_KEY (clave pública de age). Sin ella no se puede cifrar el respaldo."
+            exit 1
+          fi
+
+      - name: Volcar esquema, datos y roles
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          set +x
+          set -euo pipefail
+          npx --yes supabase@2.122.1 db dump --db-url "$SUPABASE_DB_URL" -f schema.sql
+          npx --yes supabase@2.122.1 db dump --db-url "$SUPABASE_DB_URL" --data-only -f data.sql
+          npx --yes supabase@2.122.1 db dump --db-url "$SUPABASE_DB_URL" --role-only -f roles.sql
+          for archivo in schema.sql data.sql roles.sql; do
+            if [ ! -s "$archivo" ]; then
+              echo "::error::El volcado $archivo quedó vacío; no se genera respaldo."
+              rm -f schema.sql data.sql roles.sql
+              exit 1
+            fi
+          done
+
+      - name: Instalar age
+        run: sudo apt-get install -y age
+
+      - name: Empaquetar y cifrar
+        env:
+          AGE_PUBLIC_KEY: ${{ secrets.AGE_PUBLIC_KEY }}
+        run: |
+          set +x
+          set -euo pipefail
+          fecha="$(date -u +%Y-%m-%d)"
+          tar czf respaldo.tgz schema.sql data.sql roles.sql
+          age -r "$AGE_PUBLIC_KEY" -o "backup-${fecha}.tgz.age" respaldo.tgz
+          # Nada sin cifrar queda en el disco para el paso de subida.
+          rm -f schema.sql data.sql roles.sql respaldo.tgz
+          test -s "backup-${fecha}.tgz.age"
+
+      - name: Subir solo el archivo cifrado
+        uses: actions/upload-artifact@v7
+        with:
+          name: respaldo-cifrado
+          path: backup-*.tgz.age
+          if-no-files-found: error
+          retention-days: 7

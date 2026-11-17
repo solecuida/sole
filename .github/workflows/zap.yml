@@ -1,0 +1,26 @@
+name: zap
+
+# Escaneo pasivo (baseline) de OWASP ZAP contra la app desplegada. Se lanza
+# a mano: no ataca nada, solo lee las respuestas.
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Dirección que se escanea
+        required: true
+        default: https://app.solecuida.com
+
+permissions:
+  contents: read
+
+jobs:
+  baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      # ZAP no publica etiqueta de versión mayor: la última etiqueta es v0.15.0.
+      - uses: zaproxy/action-baseline@v0.15.0
+        with:
+          target: ${{ inputs.target }}
+          # No abre issues (eso pediría el permiso issues: write): el informe queda como artefacto.
+          allow_issue_writing: false

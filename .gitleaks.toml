@@ -1,0 +1,13 @@
+# Escaneo de secretos. Reglas por defecto de gitleaks más una lista corta de rutas
+# que solo contienen nombres de variables o ejemplos, nunca valores reales.
+title = "Sole"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Contrato de variables (sin valores) y el plano de construcción"
+paths = [
+  '''app/\.env\.example''',
+  '''blueprints/''',
+]

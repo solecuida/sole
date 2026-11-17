@@ -25,7 +25,7 @@
       "app/tests/unit/env-health.test.ts",
       "app/tests/e2e/smoke.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E1-T2",
@@ -57,7 +57,7 @@
       "app/tests/db/helpers.ts",
       "app/tests/db/connection.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E1-T3",
@@ -86,7 +86,7 @@
       ".githooks/pre-commit",
       "app/tests/unit/repo-config.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E1-T4",
@@ -117,7 +117,7 @@
       "app/src/lib/design/tokens.ts",
       "app/tests/unit/design-system.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E1-T5",
@@ -146,7 +146,7 @@
       "app/src/components/ui/dialog.tsx",
       "app/tests/unit/ui-components.test.tsx"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E1-T6",
@@ -173,7 +173,7 @@
       "docs/licencias.md",
       "app/tests/unit/docs-base.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E1-T7",
@@ -199,7 +199,7 @@
       "docs/diseno/familiares.md",
       "app/tests/unit/docs-diseno.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E1-T8",
@@ -225,7 +225,7 @@
       "docs/diseno/transversal.md",
       "app/tests/unit/docs-diseno.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E2-T1",
@@ -256,7 +256,7 @@
       "app/tests/db/rls-private.test.ts",
       "app/tests/db/rate-limit.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E2-T2",
@@ -287,7 +287,7 @@
       "app/src/app/(auth)/entrar/actions.ts",
       "app/tests/unit/auth-login.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E2-T3",
@@ -317,7 +317,7 @@
       "app/tests/unit/proxy-rules.test.ts",
       "app/tests/e2e/auth.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E2-T4",
@@ -346,7 +346,7 @@
       "app/src/app/(app)/layout.tsx",
       "app/tests/db/consents.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E2-T5",
@@ -376,7 +376,7 @@
       "app/tests/unit/events-catalog.test.ts",
       "app/tests/db/events.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E2-T6",
@@ -405,7 +405,7 @@
       "app/src/server/reminders/rule-schema.ts",
       "app/tests/db/content.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E2-T7",
@@ -437,7 +437,7 @@
       "app/src/components/onboarding/install-guide.tsx",
       "app/tests/db/create-circle.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E2-T8",
@@ -468,7 +468,7 @@
       "app/src/app/page.tsx",
       "app/tests/db/org-attribution.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E3-T1",
@@ -498,7 +498,7 @@
       "app/tests/unit/recurrence.test.ts",
       "app/tests/unit/recurrence-dst.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E3-T2",
@@ -531,7 +531,7 @@
       "app/src/server/reminders/reminders.ts",
       "app/tests/db/reminders.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E3-T3",
@@ -562,7 +562,7 @@
       "app/src/components/reminders/reminder-form.tsx",
       "app/tests/e2e/reminders.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E3-T4",
@@ -588,7 +588,7 @@
       "app/src/server/reminders/materialize.ts",
       "app/tests/db/materialize.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E3-T5",
@@ -619,7 +619,7 @@
       "app/scripts/trigger-cron.ts",
       "app/tests/db/dispatch.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E3-T6",
@@ -645,7 +645,7 @@
       "app/src/app/icons/[size]/route.tsx",
       "app/tests/e2e/manifest.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E3-T7",
@@ -672,7 +672,7 @@
       "app/tsconfig.json",
       "app/tests/e2e/pwa.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E3-T8",
@@ -702,7 +702,7 @@
       "app/src/app/(app)/avisos/page.tsx",
       "app/tests/db/push-subscriptions.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E4-T1",
@@ -734,7 +734,7 @@
       "app/src/app/api/occurrences/mark/route.ts",
       "app/tests/db/today.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E4-T2",
@@ -765,7 +765,7 @@
       "app/tests/unit/tips.test.ts",
       "app/tests/e2e/today.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E4-T3",
@@ -794,7 +794,7 @@
       "app/src/app/(app)/hoy/page.tsx",
       "app/tests/e2e/offline-queue.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E4-T4",
@@ -820,7 +820,7 @@
       "app/src/sw.ts",
       "app/tests/e2e/offline-reload.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E4-T5",
@@ -851,7 +851,7 @@
       "app/tests/unit/calendar.test.ts",
       "app/tests/e2e/calendar.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E4-T6",
@@ -883,7 +883,7 @@
       "app/tests/db/journal.test.ts",
       "app/tests/e2e/journal.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E4-T7",
@@ -915,7 +915,7 @@
       "app/tests/db/selfcare.test.ts",
       "app/tests/e2e/selfcare.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E4-T8",
@@ -944,7 +944,7 @@
       "app/src/app/(app)/cuenta/page.tsx",
       "app/tests/db/account-export.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E4-T9",
@@ -973,7 +973,7 @@
       "app/src/app/(app)/cuenta/page.tsx",
       "app/tests/db/account-lifecycle.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E5-T1",
@@ -1002,7 +1002,7 @@
       "app/src/app/(app)/informes/page.tsx",
       "app/src/components/reports/compliance-chart.tsx"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E5-T2",
@@ -1030,7 +1030,7 @@
       "app/src/app/(app)/informes/imprimir/page.tsx",
       "app/tests/e2e/reports.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E5-T3",
@@ -1059,7 +1059,7 @@
       "app/src/app/(app)/layout.tsx",
       "app/tests/db/feedback.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E5-T4",
@@ -1090,7 +1090,7 @@
       "app/tests/db/surveys.test.ts",
       "app/tests/e2e/feedback.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E5-T5",
@@ -1122,7 +1122,7 @@
       "app/tests/db/fake-doors.test.ts",
       "app/tests/e2e/fake-doors.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E5-T6",
@@ -1152,7 +1152,7 @@
       "app/tests/support/totp.ts",
       "app/tests/db/admin-access.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E5-T7",
@@ -1183,7 +1183,7 @@
       "app/src/components/admin/metric-chart.tsx",
       "app/tests/db/admin-metrics.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E5-T8",
@@ -1214,7 +1214,7 @@
       "app/src/app/admin/comentarios/page.tsx",
       "app/tests/e2e/admin.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E5-T9",
@@ -1242,7 +1242,7 @@
       "app/src/app/admin/limites/page.tsx",
       "app/tests/db/admin-export.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E6-T1",
@@ -1273,7 +1273,7 @@
       "app/tests/unit/security-headers.test.ts",
       "app/tests/e2e/security-headers.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E6-T2",
@@ -1304,7 +1304,7 @@
       "app/next.config.ts",
       "app/tests/unit/scrub.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E6-T3",
@@ -1334,7 +1334,7 @@
       "app/tests/unit/production-hygiene.test.tsx",
       "app/scripts/check-bundle-secrets.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E6-T4",
@@ -1362,7 +1362,7 @@
       "app/tests/e2e/keyboard.spec.ts",
       "app/tests/e2e/p1-flows.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E6-T5",
@@ -1389,7 +1389,7 @@
       "docs/seguridad/iso27001-anexo-a.md",
       "app/tests/unit/docs-seguridad.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E6-T6",
@@ -1416,7 +1416,7 @@
       "docs/legal/eipd.md",
       "app/tests/unit/docs-seguridad.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E7-T1",
@@ -1446,7 +1446,7 @@
       "app/src/app/api/cron/daily/route.ts",
       "app/tests/db/daily-jobs.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E7-T2",
@@ -1476,7 +1476,7 @@
       "app/src/app/api/health/route.ts",
       "app/tests/unit/deploy-config.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E7-T3",
@@ -1504,7 +1504,7 @@
       ".github/workflows/zap.yml",
       "app/tests/unit/workflows.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E7-T4",
@@ -1532,7 +1532,7 @@
       "app/tests/db/rotate-field-key.test.ts",
       "app/tests/unit/docs-mantenimiento.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E7-T5",
@@ -1562,7 +1562,7 @@
       "app/tests/unit/env-example.test.ts",
       "PENDIENTES.md"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E8-T1",
@@ -1593,7 +1593,7 @@
       "app/src/server/today/today.ts",
       "app/tests/db/tasks.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E8-T2",
@@ -1624,7 +1624,7 @@
       "app/tests/db/contacts.test.ts",
       "app/tests/e2e/contacts.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E8-T3",
@@ -1653,7 +1653,7 @@
       "app/src/app/api/v/[token]/listo/route.ts",
       "app/tests/db/cared-link.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E8-T4",
@@ -1679,7 +1679,7 @@
       "app/src/app/api/v/[token]/emergencia/route.ts",
       "app/tests/db/emergency.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E8-T5",
@@ -1707,7 +1707,7 @@
       "app/src/components/cared/emergency-button.tsx",
       "app/tests/e2e/cared-view.spec.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E8-T6",
@@ -1741,7 +1741,7 @@
       "app/tests/e2e/doctor-report.spec.ts",
       "docs/negocio/planes.md"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E9-T1",
